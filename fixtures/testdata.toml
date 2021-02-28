@@ -1,0 +1,26 @@
+[[scenario]]
+name = "basic sample data"
+
+    [[scenario.table]]
+        name = "users"
+
+        [[scenario.table.row]]
+            id = 1
+			email = "test.user@gmail.com"
+			created_at = 2019-07-17T10:00:00Z
+
+    [[scenario.table]]
+        name = "oauths"
+
+        [[scenario.table.row]]
+            id = 1
+            provider = "google"
+            provider_id = "1234"
+            created_at = 2019-07-17T10:00:00Z
+
+    [[scenario.table]]
+        name = "oauth_users"
+
+        [[scenario.table.row]]
+            user_id = 1
+            oauth_id = 1

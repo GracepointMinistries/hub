@@ -1,0 +1,27 @@
+kind: pipeline
+type: docker
+name: backend
+
+cache:
+  - hash: go.sum
+    path: .gocache
+
+steps:
+  - name: postgres
+    image: postgres:11.2-alpine
+    detach: true
+    environment:
+      POSTGRES_DB: test
+  - name: Test Backend
+    image: gracepoint/buffalo:0.15.5-1
+    commands:
+      - /bin/wait-for postgres:5432 -- echo "postgres ready"
+      - buffalo test -v ./...
+    environment:
+      GOCACHE: /drone/src/.gocache
+      TEST_DATABASE_URL: 'postgres://postgres:postgres@postgres:5432/test?sslmode=disable'
+
+trigger:
+  branch:
+    - master
+    - production
