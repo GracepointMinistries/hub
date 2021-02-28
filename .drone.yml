@@ -12,6 +12,7 @@ steps:
     detach: true
     environment:
       POSTGRES_DB: test
+      POSTGRES_PASSWORD: postgres
   - name: Test Backend
     image: gracepoint/buffalo:0.15.5-1
     commands:
