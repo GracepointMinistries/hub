@@ -18,10 +18,14 @@ import (
 	"github.com/unrolled/secure"
 )
 
-var currentEnvironment = getEnvironment()
+var (
+	currentEnvironment = getEnvironment()
+	admins             []string
+)
 
 func init() {
 	currentEnvironment.Load()
+	admins = getAdmins()
 }
 
 func getHost(server *buffalo.App) string {
@@ -52,7 +56,10 @@ func App() *buffalo.App {
 		}))
 
 		gothic.Store = app.SessionStore
+		adminProvider := google.New(os.Getenv("GOOGLE_OAUTH_KEY"), os.Getenv("GOOGLE_OAUTH_SECRET"), fmt.Sprintf(getHost(app)+"/auth/admin/callback"))
+		adminProvider.SetName("admin")
 		goth.UseProviders(
+			adminProvider,
 			google.New(os.Getenv("GOOGLE_OAUTH_KEY"), os.Getenv("GOOGLE_OAUTH_SECRET"), fmt.Sprintf(getHost(app)+"/auth/google/callback")),
 		)
 
@@ -75,6 +82,7 @@ func App() *buffalo.App {
 		app.Use(popmw.Transaction(models.DB))
 
 		app.GET("/login", loginHandler)
+		app.GET("/admin/login", adminLoginHandler)
 
 		main := app.Group("")
 		main.Use(requireLoggedInUser)
@@ -83,7 +91,17 @@ func App() *buffalo.App {
 
 		auth := app.Group("/auth")
 		auth.GET("/{provider}", buffalo.WrapHandlerFunc(gothic.BeginAuthHandler))
+		auth.GET("/admin/callback", adminCallback)
 		auth.GET("/{provider}/callback", authCallback)
+
+		admin := app.Group("/admin")
+		admin.Use(requireAdmin)
+		admin.GET("/", adminHandler)
+		admin.GET("/users", usersHandler)
+		admin.GET("/zgroups", zgroupsHandler)
+		admin.GET("/zgroups/{id}", zgroupHandler)
+		admin.GET("/impersonate/{id}", impersonateHandler)
+		admin.GET("/logout", adminLogoutHandler)
 
 		app.ServeFiles("/", assetsBox) // serve files from the public directory
 	}

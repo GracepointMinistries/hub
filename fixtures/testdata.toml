@@ -6,6 +6,7 @@ name = "basic sample data"
 
         [[scenario.table.row]]
             id = 1
+            name = "Test User"
 			email = "test.user@gmail.com"
 			created_at = 2019-07-17T10:00:00Z
 
@@ -24,3 +25,19 @@ name = "basic sample data"
         [[scenario.table.row]]
             user_id = 1
             oauth_id = 1
+
+    [[scenario.table]]
+        name = "zgroups"
+
+        [[scenario.table.row]]
+            id = 1
+            name = "United Steaks of America"
+            archived = false
+            created_at = 2019-07-17T10:00:00Z
+
+    [[scenario.table]]
+        name = "zgroup_members"
+
+        [[scenario.table.row]]
+            zgroup_id = 1
+            user_id = 1

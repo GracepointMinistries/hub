@@ -18,5 +18,5 @@ func profileHandler(c buffalo.Context) error {
 	}
 
 	c.Set("profile", profile)
-	return c.Render(http.StatusOK, r.HTML("profile.html"))
+	return c.Render(http.StatusOK, r.HTML("user/profile.html"))
 }
