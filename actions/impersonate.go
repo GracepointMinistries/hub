@@ -13,7 +13,8 @@ func impersonateHandler(c buffalo.Context) error {
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}
-	user, err := models.GetUser(c, id)
+	tx := getTx(c)
+	user, err := models.FindUser(c, tx, id)
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}

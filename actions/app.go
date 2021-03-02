@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/GracepointMinistries/hub/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo-pop/pop/popmw"
 	"github.com/gobuffalo/envy"
@@ -79,7 +78,8 @@ func App() *buffalo.App {
 		// Wraps each request in a transaction.
 		//  c.Value("tx").(*pop.Connection)
 		// Remove to disable this.
-		app.Use(popmw.Transaction(models.DB))
+		app.Use(popmw.Transaction(DB))
+		app.Use(addHelpers)
 
 		app.GET("/login", loginHandler)
 		app.GET("/admin/login", adminLoginHandler)

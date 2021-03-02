@@ -101,6 +101,7 @@ CREATE TABLE public.users (
     id integer NOT NULL,
     name character varying NOT NULL,
     email character varying NOT NULL,
+    blocked boolean DEFAULT false NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 

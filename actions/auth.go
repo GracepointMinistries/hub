@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,6 +12,7 @@ import (
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/envy"
 	"github.com/markbates/goth/gothic"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 func getAdmins() []string {
@@ -48,13 +51,42 @@ func requireAdmin(next buffalo.Handler) buffalo.Handler {
 	}
 }
 
+func ensureUserWithOauth(c buffalo.Context, provider, providerID, name, email string) (*models.User, error) {
+	tx := getTx(c)
+	user, err := models.Users(models.UserWhere.Email.EQ(email)).One(c, tx)
+	if user != nil {
+		return user, nil
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
+	}
+	oauthProvider := &models.Oauth{
+		Provider:   provider,
+		ProviderID: providerID,
+	}
+	user = &models.User{
+		Name:  name,
+		Email: email,
+	}
+	if err = oauthProvider.Upsert(c, tx, false, nil, boil.Infer(), boil.Infer()); err != nil {
+		return nil, err
+	}
+	if err = user.Insert(c, tx, boil.Infer()); err != nil {
+		return nil, err
+	}
+	if err = user.AddOauths(c, tx, true, oauthProvider); err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 func authCallback(c buffalo.Context) error {
 	oauthUser, err := gothic.CompleteUserAuth(c.Response(), c.Request())
 	if err != nil {
 		return c.Error(http.StatusUnauthorized, err)
 	}
 
-	user, err := models.EnsureUserWithOAuth(c, c.Param("provider"), oauthUser.UserID, oauthUser.Name, oauthUser.Email)
+	user, err := ensureUserWithOauth(c, c.Param("provider"), oauthUser.UserID, oauthUser.Name, oauthUser.Email)
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}

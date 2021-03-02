@@ -10,6 +10,7 @@ CREATE TABLE users (
   id serial PRIMARY KEY,
   name varchar NOT NULL,
   email varchar UNIQUE NOT NULL,
+  blocked boolean NOT NULL DEFAULT FALSE,
   created_at timestamptz NOT NULL DEFAULT NOW()
 );
 

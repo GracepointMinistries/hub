@@ -16,7 +16,7 @@
                 Status
               </th>
               <th scope="col" class="relative px-6 py-3">
-                <span class="sr-only">Edit</span>
+                <span class="sr-only">Impersonate</span>
               </th>
             </tr>
           </thead>
@@ -27,24 +27,29 @@
                     <div class="flex items-center">
                       <div class="ml-4">
                         <div class="text-sm font-medium text-gray-900">
-                          <%= user.User.Name %>
+                          <%= user.Name %>
                         </div>
                         <div class="text-sm text-gray-500">
-                          <%= user.User.Email %>
+                          <%= user.Email %>
                         </div>
                       </div>
                     </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <a href="/admin/zgroups/<%= user.ZGroup.ID %>" class="text-indigo-600 hover:text-indigo-900"><%= user.ZGroup.Name %></a>
+                      <% let zgroup = zgroupFor(user) %>
+                      <%= if (zgroup) { %>
+                        <a href="/admin/zgroups/<%= zgroup.ID %>" class="text-indigo-600 hover:text-indigo-900"><%= zgroup.Name %></a>
+                      <% } else { %>
+                        &mdash;
+                      <% } %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      Active
+                      <%= userStatus(user) %>
                     </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <a href="/admin/impersonate/<%= user.User.ID %>" class="text-indigo-600 hover:text-indigo-900">Impersonate</a>
+                    <a href="/admin/impersonate/<%= user.ID %>" class="text-indigo-600 hover:text-indigo-900">Impersonate</a>
                   </td>
                 </tr>
               <% } %>

@@ -1,8 +1,9 @@
-package models
+package actions
 
 import (
 	"log"
 
+	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/pop"
 )
@@ -19,4 +20,8 @@ func init() {
 		log.Fatal(err)
 	}
 	pop.Debug = env == "development"
+}
+
+func getTx(c buffalo.Context) *pop.Tx {
+	return c.Value("tx").(*pop.Connection).TX
 }
