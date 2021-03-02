@@ -12,9 +12,17 @@ import (
 // swagger:response profileResponse
 type ProfileResponse struct {
 	//in:body
-	User *models.User `json:"user"`
-	//in:body
-	Zgroup *models.Zgroup `json:"zgroup"`
+	Body struct {
+		User   *models.User   `json:"user"`
+		Zgroup *models.Zgroup `json:"zgroup"`
+	}
+}
+
+func profileResponse(user *models.User, zgroup *models.Zgroup) *ProfileResponse {
+	response := &ProfileResponse{}
+	response.Body.User = user
+	response.Body.Zgroup = zgroup
+	return response
 }
 
 // swagger:route GET /api/v1/profile profile
@@ -26,8 +34,8 @@ func apiProfile(c buffalo.Context) error {
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}
-	return c.Render(http.StatusOK, r.JSON(&ProfileResponse{
-		User:   user,
-		Zgroup: modelext.ZgroupForUser(user),
-	}))
+	return c.Render(http.StatusOK, r.JSON(profileResponse(
+		user,
+		modelext.ZgroupForUser(user),
+	).Body))
 }

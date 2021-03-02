@@ -160,37 +160,66 @@
     "adminUsersResponse": {
       "description": "AdminUsersResponse returns the queried users",
       "schema": {
-        "type": "array",
-        "items": {
-          "$ref": "#/definitions/User"
-        },
-        "$ref": "#/definitions/Pagination"
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "$ref": "#/definitions/Pagination"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
       }
     },
     "adminZgroupResponse": {
       "description": "AdminZgroupResponse returns the queried zgroups",
       "schema": {
-        "type": "array",
-        "items": {
-          "$ref": "#/definitions/User"
-        },
-        "$ref": "#/definitions/Zgroup"
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "zgroup": {
+            "$ref": "#/definitions/Zgroup"
+          }
+        }
       }
     },
     "adminZgroupsResponse": {
       "description": "AdminZgroupsResponse returns the queried zgroups",
       "schema": {
-        "type": "array",
-        "items": {
-          "$ref": "#/definitions/Zgroup"
-        },
-        "$ref": "#/definitions/Pagination"
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "$ref": "#/definitions/Pagination"
+          },
+          "zgroups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Zgroup"
+            }
+          }
+        }
       }
     },
     "profileResponse": {
       "description": "ProfileResponse returns the user profile information",
       "schema": {
-        "$ref": "#/definitions/Zgroup"
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/definitions/User"
+          },
+          "zgroup": {
+            "$ref": "#/definitions/Zgroup"
+          }
+        }
       }
     }
   }

@@ -86,7 +86,7 @@ func App() *buffalo.App {
 			api := app.Group("/api/v1")
 			main := api.Group("")
 			main.Use(requireAPIUser)
-			main.GET("/", apiProfile)
+			main.GET("/profile", apiProfile)
 
 			admin := api.Group("/admin")
 			admin.Use(requireAPIAdmin)

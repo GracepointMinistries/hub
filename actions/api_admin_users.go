@@ -13,9 +13,17 @@ import (
 // swagger:response adminUsersResponse
 type AdminUsersResponse struct {
 	//in:body
-	Users []*models.User `json:"users"`
-	//in:body
-	Pagination *modelext.Pagination `json:"pagination"`
+	Body struct {
+		Users      []*models.User       `json:"users"`
+		Pagination *modelext.Pagination `json:"pagination"`
+	}
+}
+
+func adminUsersResponse(users []*models.User, pagination *modelext.Pagination) *AdminUsersResponse {
+	response := &AdminUsersResponse{}
+	response.Body.Users = users
+	response.Body.Pagination = pagination
+	return response
 }
 
 // swagger:route GET /api/v1/admin/users adminUsers
@@ -27,8 +35,8 @@ func apiAdminUsers(c buffalo.Context) error {
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}
-	return c.Render(http.StatusOK, r.JSON(&AdminUsersResponse{
-		Users:      users,
-		Pagination: pagination,
-	}))
+	return c.Render(http.StatusOK, r.JSON(adminUsersResponse(
+		users,
+		pagination,
+	).Body))
 }

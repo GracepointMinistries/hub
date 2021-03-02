@@ -13,9 +13,17 @@ import (
 // swagger:response adminZgroupsResponse
 type AdminZgroupsResponse struct {
 	//in:body
-	Zgroups []*models.Zgroup `json:"zgroups"`
-	//in:body
-	Pagination *modelext.Pagination `json:"pagination"`
+	Body struct {
+		Zgroups    []*models.Zgroup     `json:"zgroups"`
+		Pagination *modelext.Pagination `json:"pagination"`
+	}
+}
+
+func adminZgroupsResponse(zgroups []*models.Zgroup, pagination *modelext.Pagination) *AdminZgroupsResponse {
+	response := &AdminZgroupsResponse{}
+	response.Body.Zgroups = zgroups
+	response.Body.Pagination = pagination
+	return response
 }
 
 // swagger:route GET /api/v1/admin/zgroups adminZgroups
@@ -27,19 +35,27 @@ func apiAdminZgroups(c buffalo.Context) error {
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}
-	return c.Render(http.StatusOK, r.JSON(&AdminZgroupsResponse{
-		Zgroups:    zgroups,
-		Pagination: pagination,
-	}))
+	return c.Render(http.StatusOK, r.JSON(adminZgroupsResponse(
+		zgroups,
+		pagination,
+	).Body))
 }
 
 // AdminZgroupResponse returns the queried zgroups
 // swagger:response adminZgroupResponse
 type AdminZgroupResponse struct {
 	//in:body
-	Zgroup *models.Zgroup `json:"zgroup"`
-	//in:body
-	Users []*models.User `json:"users"`
+	Body struct {
+		Zgroup *models.Zgroup `json:"zgroup"`
+		Users  []*models.User `json:"users"`
+	}
+}
+
+func adminZgroupResponse(zgroup *models.Zgroup, users []*models.User) *AdminZgroupResponse {
+	response := &AdminZgroupResponse{}
+	response.Body.Zgroup = zgroup
+	response.Body.Users = users
+	return response
 }
 
 // AdminZgroupParameters documents the inbound parameters used
@@ -63,8 +79,8 @@ func apiAdminZgroup(c buffalo.Context) error {
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}
-	return c.Render(http.StatusOK, r.JSON(&AdminZgroupResponse{
-		Zgroup: zgroup,
-		Users:  zgroup.R.Users,
-	}))
+	return c.Render(http.StatusOK, r.JSON(adminZgroupResponse(
+		zgroup,
+		zgroup.R.Users,
+	).Body))
 }
