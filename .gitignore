@@ -18,7 +18,7 @@ bin
 tmp
 node_modules
 public/assets
-hub
+/hub
 .idea
 terraform.tfvars
 .terraform
@@ -32,7 +32,8 @@ terraform.tfvars
 /dart/client/git_push.sh
 /dart/client/README.md
 /dart/client/.dart_tool
-/dart
+/dart/client
+/dart/hub
 
 /typescript/client/.swagger-codegen
 /typescript/client/.swagger-codegen-ignore
