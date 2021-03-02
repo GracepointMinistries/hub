@@ -7,6 +7,7 @@ import (
 )
 
 //go:generate sqlboiler -c sqlboiler.toml psql --struct-tag-casing camel --no-hooks
+//go:generate swagger generate spec -o swagger.json
 
 func main() {
 	app := actions.App()

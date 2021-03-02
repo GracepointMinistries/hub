@@ -37,7 +37,7 @@
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <% let zgroup = zgroupFor(user) %>
-                      <%= if (zgroup) { %>
+                      <%= if (!isNil(zgroup)) { %>
                         <a href="/admin/zgroups/<%= zgroup.ID %>" class="text-indigo-600 hover:text-indigo-900"><%= zgroup.Name %></a>
                       <% } else { %>
                         &mdash;

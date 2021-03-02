@@ -33,6 +33,7 @@ name = "basic sample data"
             id = 1
             name = "United Steaks of America"
             archived = false
+            published = true
             zoom_link = "https://google.com"
             created_at = 2019-07-17T10:00:00Z
 

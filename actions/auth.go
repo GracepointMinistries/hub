@@ -1,18 +1,14 @@
 package actions
 
 import (
-	"database/sql"
-	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
-	"github.com/GracepointMinistries/hub/models"
+	"github.com/GracepointMinistries/hub/modelext"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/envy"
 	"github.com/markbates/goth/gothic"
-	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 func getAdmins() []string {
@@ -25,7 +21,6 @@ func adminCallback(c buffalo.Context) error {
 		return c.Error(http.StatusUnauthorized, err)
 	}
 
-	log.Println(admins)
 	for _, admin := range admins {
 		if admin == oauthUser.Email {
 			c.Session().Set("Admin", admin)
@@ -35,9 +30,8 @@ func adminCallback(c buffalo.Context) error {
 	return c.Error(http.StatusUnauthorized, fmt.Errorf("%s is not an admin", oauthUser.Email))
 }
 
-func adminLogoutHandler(c buffalo.Context) error {
-	c.Session().Clear()
-	return c.Redirect(http.StatusSeeOther, "/admin/login")
+func adminLoginPage(c buffalo.Context) error {
+	return c.Render(200, r.HTML("admin/login.html", "empty.html"))
 }
 
 func requireAdmin(next buffalo.Handler) buffalo.Handler {
@@ -51,33 +45,18 @@ func requireAdmin(next buffalo.Handler) buffalo.Handler {
 	}
 }
 
-func ensureUserWithOauth(c buffalo.Context, provider, providerID, name, email string) (*models.User, error) {
-	tx := getTx(c)
-	user, err := models.Users(models.UserWhere.Email.EQ(email)).One(c, tx)
-	if user != nil {
-		return user, nil
+func adminLogoutPage(c buffalo.Context) error {
+	c.Session().Clear()
+	return c.Redirect(http.StatusSeeOther, "/admin/login")
+}
+
+func requireAPIAdmin(next buffalo.Handler) buffalo.Handler {
+	return func(c buffalo.Context) error {
+		if c.Session().Get("Admin") == nil {
+			return c.Render(http.StatusUnauthorized, apiError("unauthorized"))
+		}
+		return next(c)
 	}
-	if !errors.Is(err, sql.ErrNoRows) {
-		return nil, err
-	}
-	oauthProvider := &models.Oauth{
-		Provider:   provider,
-		ProviderID: providerID,
-	}
-	user = &models.User{
-		Name:  name,
-		Email: email,
-	}
-	if err = oauthProvider.Upsert(c, tx, false, nil, boil.Infer(), boil.Infer()); err != nil {
-		return nil, err
-	}
-	if err = user.Insert(c, tx, boil.Infer()); err != nil {
-		return nil, err
-	}
-	if err = user.AddOauths(c, tx, true, oauthProvider); err != nil {
-		return nil, err
-	}
-	return user, nil
 }
 
 func authCallback(c buffalo.Context) error {
@@ -86,7 +65,7 @@ func authCallback(c buffalo.Context) error {
 		return c.Error(http.StatusUnauthorized, err)
 	}
 
-	user, err := ensureUserWithOauth(c, c.Param("provider"), oauthUser.UserID, oauthUser.Name, oauthUser.Email)
+	user, err := modelext.EnsureUserWithOauth(c, c.Param("provider"), oauthUser.UserID, oauthUser.Name, oauthUser.Email)
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}
@@ -96,8 +75,10 @@ func authCallback(c buffalo.Context) error {
 	return c.Redirect(http.StatusSeeOther, "/")
 }
 
-// requireLoggedInUser checks whether or not a user is logged in with an unexpired session cookie
-// if the user is not logged in, then the frontend should redirect to /auth/google
+func loginPage(c buffalo.Context) error {
+	return c.Render(200, r.HTML("user/login.html", "empty.html"))
+}
+
 func requireLoggedInUser(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		if c.Session().Get("ID") == nil {
@@ -110,11 +91,20 @@ func requireLoggedInUser(next buffalo.Handler) buffalo.Handler {
 	}
 }
 
-func logoutHandler(c buffalo.Context) error {
+func logoutPage(c buffalo.Context) error {
 	c.Session().Delete("ID")
 	c.Session().Delete("Email")
 	if c.Session().Get("Admin") != nil {
-		return c.Redirect(http.StatusSeeOther, "/admin/users")
+		return c.Redirect(http.StatusSeeOther, "/admin")
 	}
 	return c.Redirect(http.StatusSeeOther, "/")
+}
+
+func requireAPIUser(next buffalo.Handler) buffalo.Handler {
+	return func(c buffalo.Context) error {
+		if c.Session().Get("ID") == nil {
+			return c.Render(http.StatusUnauthorized, apiError("unauthorized"))
+		}
+		return next(c)
+	}
 }

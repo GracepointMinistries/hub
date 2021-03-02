@@ -1,43 +1,36 @@
 package actions
 
 import (
-	"github.com/GracepointMinistries/hub/models"
+	"reflect"
+
+	"github.com/GracepointMinistries/hub/modelext"
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/buffalo/render"
 )
 
-func zgroupFor(user *models.User) *models.Zgroup {
-	zgroupsLen := len(user.R.Zgroups)
-	if zgroupsLen == 0 {
-		return nil
-	}
-	return user.R.Zgroups[zgroupsLen-1]
+// APIError wraps errors in a well-defined api payload
+type APIError struct {
+	Error string `json:"error"`
 }
 
-func zgroupStatus(zgroup *models.Zgroup) string {
-	if zgroup.Archived {
-		return "Archived"
-	}
-	return "Active"
+func apiError(message string) render.Renderer {
+	return r.JSON(&APIError{
+		Error: message,
+	})
 }
 
-func totalUsersIn(c buffalo.Context, zgroup *models.Zgroup) (int64, error) {
-	tx := getTx(c)
-	return zgroup.Users().Count(c, tx)
-}
-
-func userStatus(user *models.User) string {
-	if user.Blocked {
-		return "Blocked"
-	}
-	return "Active"
+func isNil(c interface{}) bool {
+	return c == nil || (reflect.ValueOf(c).Kind() == reflect.Ptr && reflect.ValueOf(c).IsNil())
 }
 
 func addHelpers(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		c.Set("zgroupFor", zgroupFor)
-		c.Set("zgroupStatus", zgroupStatus)
-		c.Set("totalUsersIn", totalUsersIn)
-		c.Set("userStatus", userStatus)
+		c.Set("isNil", isNil)
+		c.Set("hasZoomLink", modelext.HasZoomLink)
+		c.Set("zgroupFor", modelext.ZgroupForUser)
+		c.Set("zgroupStatus", modelext.ZgroupStatus)
+		c.Set("totalUsersIn", modelext.TotalUsersIn)
+		c.Set("userStatus", modelext.UserStatus)
 		c.Set("ctx", c)
 		return next(c)
 	}

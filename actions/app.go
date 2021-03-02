@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/GracepointMinistries/hub/modelext"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo-pop/pop/popmw"
 	"github.com/gobuffalo/envy"
 	forcessl "github.com/gobuffalo/mw-forcessl"
-	paramlogger "github.com/gobuffalo/mw-paramlogger"
 	"github.com/golang/gddo/httputil"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
@@ -66,7 +66,7 @@ func App() *buffalo.App {
 		app.Use(forceSSL())
 
 		// Log request parameters (filters apply).
-		app.Use(paramlogger.ParameterLogger)
+		// app.Use(paramlogger.ParameterLogger)
 
 		// TODO(dk): should probably add this, but makes API requests more complicated. If we enable it we need to also
 		// uncomment the csrf meta tags in application.html.
@@ -78,32 +78,48 @@ func App() *buffalo.App {
 		// Wraps each request in a transaction.
 		//  c.Value("tx").(*pop.Connection)
 		// Remove to disable this.
-		app.Use(popmw.Transaction(DB))
+		app.Use(popmw.Transaction(modelext.DB))
 		app.Use(addHelpers)
 
-		app.GET("/login", loginHandler)
-		app.GET("/admin/login", adminLoginHandler)
+		{
+			// api resources
+			api := app.Group("/api/v1")
+			main := api.Group("")
+			main.Use(requireAPIUser)
+			main.GET("/", apiProfile)
 
-		main := app.Group("")
-		main.Use(requireLoggedInUser)
-		main.GET("/", profileHandler)
-		main.GET("/logout", logoutHandler)
+			admin := api.Group("/admin")
+			admin.Use(requireAPIAdmin)
+			admin.GET("/users", apiAdminUsers)
+			admin.GET("/zgroups", apiAdminZgroups)
+			admin.GET("/zgroups/{id}", apiAdminZgroup)
+		}
 
-		auth := app.Group("/auth")
-		auth.GET("/{provider}", buffalo.WrapHandlerFunc(gothic.BeginAuthHandler))
-		auth.GET("/admin/callback", adminCallback)
-		auth.GET("/{provider}/callback", authCallback)
+		{
+			// page resources
+			app.GET("/login", loginPage)
+			app.GET("/admin/login", adminLoginPage)
 
-		admin := app.Group("/admin")
-		admin.Use(requireAdmin)
-		admin.GET("/", adminHandler)
-		admin.GET("/users", usersHandler)
-		admin.GET("/zgroups", zgroupsHandler)
-		admin.GET("/zgroups/{id}", zgroupHandler)
-		admin.GET("/impersonate/{id}", impersonateHandler)
-		admin.GET("/logout", adminLogoutHandler)
+			main := app.Group("")
+			main.Use(requireLoggedInUser)
+			main.GET("/", profilePage)
+			main.GET("/logout", logoutPage)
 
-		app.ServeFiles("/", assetsBox) // serve files from the public directory
+			auth := app.Group("/auth")
+			auth.GET("/{provider}", buffalo.WrapHandlerFunc(gothic.BeginAuthHandler))
+			auth.GET("/admin/callback", adminCallback)
+			auth.GET("/{provider}/callback", authCallback)
+
+			admin := app.Group("/admin")
+			admin.Use(requireAdmin)
+			admin.GET("/", adminUsersPage)
+			admin.GET("/zgroups", adminZgroupsPage)
+			admin.GET("/zgroups/{id}", adminZgroupPage)
+			admin.GET("/impersonate/{id}", adminImpersonatePage)
+			admin.GET("/logout", adminLogoutPage)
+
+			app.ServeFiles("/", assetsBox) // serve files from the public directory
+		}
 	}
 
 	return app

@@ -151,7 +151,8 @@ ALTER TABLE public.zgroup_members OWNER TO postgres;
 CREATE TABLE public.zgroups (
     id integer NOT NULL,
     name character varying NOT NULL,
-    zoom_link character varying,
+    zoom_link character varying DEFAULT ''::character varying NOT NULL,
+    published boolean DEFAULT false NOT NULL,
     archived boolean DEFAULT false NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL

@@ -739,7 +739,7 @@ func testZgroupsSelect(t *testing.T) {
 }
 
 var (
-	zgroupDBTypes = map[string]string{`ID`: `integer`, `Name`: `character varying`, `ZoomLink`: `character varying`, `Archived`: `boolean`, `UpdatedAt`: `timestamp with time zone`, `CreatedAt`: `timestamp with time zone`}
+	zgroupDBTypes = map[string]string{`ID`: `integer`, `Name`: `character varying`, `ZoomLink`: `character varying`, `Published`: `boolean`, `Archived`: `boolean`, `UpdatedAt`: `timestamp with time zone`, `CreatedAt`: `timestamp with time zone`}
 	_             = bytes.MinRead
 )
 

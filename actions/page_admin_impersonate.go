@@ -4,17 +4,16 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/GracepointMinistries/hub/models"
+	"github.com/GracepointMinistries/hub/modelext"
 	"github.com/gobuffalo/buffalo"
 )
 
-func impersonateHandler(c buffalo.Context) error {
+func adminImpersonatePage(c buffalo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}
-	tx := getTx(c)
-	user, err := models.FindUser(c, tx, id)
+	user, err := modelext.FindUser(c, id)
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}

@@ -1,0 +1,197 @@
+{
+  "swagger": "2.0",
+  "paths": {
+    "/api/v1/admin/users": {
+      "get": {
+        "summary": "Returns a paginated list of users.",
+        "operationId": "adminUsers",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "cursor",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/adminUsersResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/zgroups": {
+      "get": {
+        "summary": "Returns a paginated list of zGroups.",
+        "operationId": "adminZgroups",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "cursor",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/adminZgroupsResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/zgroups/{id}": {
+      "get": {
+        "summary": "Returns a zGroup and its users.",
+        "operationId": "adminZgroup",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/adminZgroupResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/profile": {
+      "get": {
+        "summary": "Returns the users profile.",
+        "operationId": "profile",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/profileResponse"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Pagination": {
+      "description": "Pagination holds query data for pagination",
+      "type": "object",
+      "properties": {
+        "cursor": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "title": "User is an object representing the database table.",
+      "properties": {
+        "blocked": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "Zgroup": {
+      "type": "object",
+      "title": "Zgroup is an object representing the database table.",
+      "properties": {
+        "archived": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "published": {
+          "type": "boolean"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "zoomLink": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "responses": {
+    "adminUsersResponse": {
+      "description": "AdminUsersResponse returns the queried users",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/User"
+        },
+        "$ref": "#/definitions/Pagination"
+      }
+    },
+    "adminZgroupResponse": {
+      "description": "AdminZgroupResponse returns the queried zgroups",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/User"
+        },
+        "$ref": "#/definitions/Zgroup"
+      }
+    },
+    "adminZgroupsResponse": {
+      "description": "AdminZgroupsResponse returns the queried zgroups",
+      "schema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Zgroup"
+        },
+        "$ref": "#/definitions/Pagination"
+      }
+    },
+    "profileResponse": {
+      "description": "ProfileResponse returns the user profile information",
+      "schema": {
+        "$ref": "#/definitions/Zgroup"
+      }
+    }
+  }
+}
