@@ -24,3 +24,10 @@ terraform.tfvars
 .terraform
 .tmp
 .env.development
+
+dart/client/.swagger-codegen
+dart/client/docs
+dart/client/.analysis_options
+dart/client/.swagger-codegen-ignore
+dart/client/git_push.sh
+dart/client/README.md
