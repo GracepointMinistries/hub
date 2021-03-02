@@ -28,6 +28,7 @@ type Zgroup struct {
 	Name      string      `boil:"name" json:"name" toml:"name" yaml:"name"`
 	ZoomLink  null.String `boil:"zoom_link" json:"zoomLink,omitempty" toml:"zoomLink" yaml:"zoomLink,omitempty"`
 	Archived  bool        `boil:"archived" json:"archived" toml:"archived" yaml:"archived"`
+	UpdatedAt time.Time   `boil:"updated_at" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
 	CreatedAt time.Time   `boil:"created_at" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
 
 	R *zgroupR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -39,12 +40,14 @@ var ZgroupColumns = struct {
 	Name      string
 	ZoomLink  string
 	Archived  string
+	UpdatedAt string
 	CreatedAt string
 }{
 	ID:        "id",
 	Name:      "name",
 	ZoomLink:  "zoom_link",
 	Archived:  "archived",
+	UpdatedAt: "updated_at",
 	CreatedAt: "created_at",
 }
 
@@ -78,12 +81,14 @@ var ZgroupWhere = struct {
 	Name      whereHelperstring
 	ZoomLink  whereHelpernull_String
 	Archived  whereHelperbool
+	UpdatedAt whereHelpertime_Time
 	CreatedAt whereHelpertime_Time
 }{
 	ID:        whereHelperint{field: "\"zgroups\".\"id\""},
 	Name:      whereHelperstring{field: "\"zgroups\".\"name\""},
 	ZoomLink:  whereHelpernull_String{field: "\"zgroups\".\"zoom_link\""},
 	Archived:  whereHelperbool{field: "\"zgroups\".\"archived\""},
+	UpdatedAt: whereHelpertime_Time{field: "\"zgroups\".\"updated_at\""},
 	CreatedAt: whereHelpertime_Time{field: "\"zgroups\".\"created_at\""},
 }
 
@@ -108,9 +113,9 @@ func (*zgroupR) NewStruct() *zgroupR {
 type zgroupL struct{}
 
 var (
-	zgroupAllColumns            = []string{"id", "name", "zoom_link", "archived", "created_at"}
+	zgroupAllColumns            = []string{"id", "name", "zoom_link", "archived", "updated_at", "created_at"}
 	zgroupColumnsWithoutDefault = []string{"name", "zoom_link"}
-	zgroupColumnsWithDefault    = []string{"id", "archived", "created_at"}
+	zgroupColumnsWithDefault    = []string{"id", "archived", "updated_at", "created_at"}
 	zgroupPrimaryKeyColumns     = []string{"id"}
 )
 
@@ -118,8 +123,6 @@ type (
 	// ZgroupSlice is an alias for a slice of pointers to Zgroup.
 	// This should generally be used opposed to []Zgroup.
 	ZgroupSlice []*Zgroup
-	// ZgroupHook is the signature for custom Zgroup hook methods
-	ZgroupHook func(context.Context, boil.ContextExecutor, *Zgroup) error
 
 	zgroupQuery struct {
 		*queries.Query
@@ -147,176 +150,6 @@ var (
 	_ = qmhelper.Where
 )
 
-var zgroupBeforeInsertHooks []ZgroupHook
-var zgroupBeforeUpdateHooks []ZgroupHook
-var zgroupBeforeDeleteHooks []ZgroupHook
-var zgroupBeforeUpsertHooks []ZgroupHook
-
-var zgroupAfterInsertHooks []ZgroupHook
-var zgroupAfterSelectHooks []ZgroupHook
-var zgroupAfterUpdateHooks []ZgroupHook
-var zgroupAfterDeleteHooks []ZgroupHook
-var zgroupAfterUpsertHooks []ZgroupHook
-
-// doBeforeInsertHooks executes all "before insert" hooks.
-func (o *Zgroup) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range zgroupBeforeInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpdateHooks executes all "before Update" hooks.
-func (o *Zgroup) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range zgroupBeforeUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeDeleteHooks executes all "before Delete" hooks.
-func (o *Zgroup) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range zgroupBeforeDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpsertHooks executes all "before Upsert" hooks.
-func (o *Zgroup) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range zgroupBeforeUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterInsertHooks executes all "after Insert" hooks.
-func (o *Zgroup) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range zgroupAfterInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterSelectHooks executes all "after Select" hooks.
-func (o *Zgroup) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range zgroupAfterSelectHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpdateHooks executes all "after Update" hooks.
-func (o *Zgroup) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range zgroupAfterUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterDeleteHooks executes all "after Delete" hooks.
-func (o *Zgroup) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range zgroupAfterDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpsertHooks executes all "after Upsert" hooks.
-func (o *Zgroup) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range zgroupAfterUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// AddZgroupHook registers your hook function for all future operations.
-func AddZgroupHook(hookPoint boil.HookPoint, zgroupHook ZgroupHook) {
-	switch hookPoint {
-	case boil.BeforeInsertHook:
-		zgroupBeforeInsertHooks = append(zgroupBeforeInsertHooks, zgroupHook)
-	case boil.BeforeUpdateHook:
-		zgroupBeforeUpdateHooks = append(zgroupBeforeUpdateHooks, zgroupHook)
-	case boil.BeforeDeleteHook:
-		zgroupBeforeDeleteHooks = append(zgroupBeforeDeleteHooks, zgroupHook)
-	case boil.BeforeUpsertHook:
-		zgroupBeforeUpsertHooks = append(zgroupBeforeUpsertHooks, zgroupHook)
-	case boil.AfterInsertHook:
-		zgroupAfterInsertHooks = append(zgroupAfterInsertHooks, zgroupHook)
-	case boil.AfterSelectHook:
-		zgroupAfterSelectHooks = append(zgroupAfterSelectHooks, zgroupHook)
-	case boil.AfterUpdateHook:
-		zgroupAfterUpdateHooks = append(zgroupAfterUpdateHooks, zgroupHook)
-	case boil.AfterDeleteHook:
-		zgroupAfterDeleteHooks = append(zgroupAfterDeleteHooks, zgroupHook)
-	case boil.AfterUpsertHook:
-		zgroupAfterUpsertHooks = append(zgroupAfterUpsertHooks, zgroupHook)
-	}
-}
-
 // One returns a single zgroup record from the query.
 func (q zgroupQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Zgroup, error) {
 	o := &Zgroup{}
@@ -331,10 +164,6 @@ func (q zgroupQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Zgrou
 		return nil, errors.Wrap(err, "models: failed to execute a one query for zgroups")
 	}
 
-	if err := o.doAfterSelectHooks(ctx, exec); err != nil {
-		return o, err
-	}
-
 	return o, nil
 }
 
@@ -345,14 +174,6 @@ func (q zgroupQuery) All(ctx context.Context, exec boil.ContextExecutor) (Zgroup
 	err := q.Bind(ctx, exec, &o)
 	if err != nil {
 		return nil, errors.Wrap(err, "models: failed to assign all query results to Zgroup slice")
-	}
-
-	if len(zgroupAfterSelectHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterSelectHooks(ctx, exec); err != nil {
-				return o, err
-			}
-		}
 	}
 
 	return o, nil
@@ -451,7 +272,7 @@ func (zgroupL) LoadUsers(ctx context.Context, e boil.ContextExecutor, singular b
 	}
 
 	query := NewQuery(
-		qm.Select("\"users\".id, \"users\".name, \"users\".email, \"users\".blocked, \"users\".created_at, \"a\".\"zgroup_id\""),
+		qm.Select("\"users\".id, \"users\".name, \"users\".email, \"users\".blocked, \"users\".updated_at, \"users\".created_at, \"a\".\"zgroup_id\""),
 		qm.From("\"users\""),
 		qm.InnerJoin("\"zgroup_members\" as \"a\" on \"users\".\"id\" = \"a\".\"user_id\""),
 		qm.WhereIn("\"a\".\"zgroup_id\" in ?", args...),
@@ -472,7 +293,7 @@ func (zgroupL) LoadUsers(ctx context.Context, e boil.ContextExecutor, singular b
 		one := new(User)
 		var localJoinCol int
 
-		err = results.Scan(&one.ID, &one.Name, &one.Email, &one.Blocked, &one.CreatedAt, &localJoinCol)
+		err = results.Scan(&one.ID, &one.Name, &one.Email, &one.Blocked, &one.UpdatedAt, &one.CreatedAt, &localJoinCol)
 		if err != nil {
 			return errors.Wrap(err, "failed to scan eager loaded results for users")
 		}
@@ -491,13 +312,6 @@ func (zgroupL) LoadUsers(ctx context.Context, e boil.ContextExecutor, singular b
 		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for users")
 	}
 
-	if len(userAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
 	if singular {
 		object.R.Users = resultSlice
 		for _, foreign := range resultSlice {
@@ -709,13 +523,12 @@ func (o *Zgroup) Insert(ctx context.Context, exec boil.ContextExecutor, columns 
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
+		if o.UpdatedAt.IsZero() {
+			o.UpdatedAt = currTime
+		}
 		if o.CreatedAt.IsZero() {
 			o.CreatedAt = currTime
 		}
-	}
-
-	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
-		return err
 	}
 
 	nzDefaults := queries.NonZeroDefaultSet(zgroupColumnsWithDefault, o)
@@ -781,17 +594,20 @@ func (o *Zgroup) Insert(ctx context.Context, exec boil.ContextExecutor, columns 
 		zgroupInsertCacheMut.Unlock()
 	}
 
-	return o.doAfterInsertHooks(ctx, exec)
+	return nil
 }
 
 // Update uses an executor to update the Zgroup.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
 func (o *Zgroup) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
-	var err error
-	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
-		return 0, err
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		o.UpdatedAt = currTime
 	}
+
+	var err error
 	key := makeCacheKey(columns, nil)
 	zgroupUpdateCacheMut.RLock()
 	cache, cached := zgroupUpdateCache[key]
@@ -844,7 +660,7 @@ func (o *Zgroup) Update(ctx context.Context, exec boil.ContextExecutor, columns 
 		zgroupUpdateCacheMut.Unlock()
 	}
 
-	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
+	return rowsAff, nil
 }
 
 // UpdateAll updates all rows with the specified column values.
@@ -921,13 +737,10 @@ func (o *Zgroup) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOn
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
+		o.UpdatedAt = currTime
 		if o.CreatedAt.IsZero() {
 			o.CreatedAt = currTime
 		}
-	}
-
-	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
-		return err
 	}
 
 	nzDefaults := queries.NonZeroDefaultSet(zgroupColumnsWithDefault, o)
@@ -1031,7 +844,7 @@ func (o *Zgroup) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOn
 		zgroupUpsertCacheMut.Unlock()
 	}
 
-	return o.doAfterUpsertHooks(ctx, exec)
+	return nil
 }
 
 // Delete deletes a single Zgroup record with an executor.
@@ -1039,10 +852,6 @@ func (o *Zgroup) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOn
 func (o *Zgroup) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no Zgroup provided for delete")
-	}
-
-	if err := o.doBeforeDeleteHooks(ctx, exec); err != nil {
-		return 0, err
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), zgroupPrimaryKeyMapping)
@@ -1061,10 +870,6 @@ func (o *Zgroup) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
 		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for zgroups")
-	}
-
-	if err := o.doAfterDeleteHooks(ctx, exec); err != nil {
-		return 0, err
 	}
 
 	return rowsAff, nil
@@ -1097,14 +902,6 @@ func (o ZgroupSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (
 		return 0, nil
 	}
 
-	if len(zgroupBeforeDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doBeforeDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
-	}
-
 	var args []interface{}
 	for _, obj := range o {
 		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), zgroupPrimaryKeyMapping)
@@ -1127,14 +924,6 @@ func (o ZgroupSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
 		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for zgroups")
-	}
-
-	if len(zgroupAfterDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
 	}
 
 	return rowsAff, nil

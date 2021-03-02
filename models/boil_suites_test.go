@@ -71,12 +71,6 @@ func TestCount(t *testing.T) {
 	t.Run("Zgroups", testZgroupsCount)
 }
 
-func TestHooks(t *testing.T) {
-	t.Run("Oauths", testOauthsHooks)
-	t.Run("Users", testUsersHooks)
-	t.Run("Zgroups", testZgroupsHooks)
-}
-
 func TestInsert(t *testing.T) {
 	t.Run("Oauths", testOauthsInsert)
 	t.Run("Oauths", testOauthsInsertWhitelist)

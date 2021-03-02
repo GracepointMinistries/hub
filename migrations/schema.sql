@@ -54,6 +54,7 @@ CREATE TABLE public.oauths (
     id integer NOT NULL,
     provider character varying NOT NULL,
     provider_id character varying NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -102,6 +103,7 @@ CREATE TABLE public.users (
     name character varying NOT NULL,
     email character varying NOT NULL,
     blocked boolean DEFAULT false NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -151,6 +153,7 @@ CREATE TABLE public.zgroups (
     name character varying NOT NULL,
     zoom_link character varying,
     archived boolean DEFAULT false NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 

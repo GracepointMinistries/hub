@@ -26,6 +26,7 @@ type Oauth struct {
 	ID         int       `boil:"id" json:"id" toml:"id" yaml:"id"`
 	Provider   string    `boil:"provider" json:"provider" toml:"provider" yaml:"provider"`
 	ProviderID string    `boil:"provider_id" json:"providerID" toml:"providerID" yaml:"providerID"`
+	UpdatedAt  time.Time `boil:"updated_at" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
 	CreatedAt  time.Time `boil:"created_at" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
 
 	R *oauthR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -36,11 +37,13 @@ var OauthColumns = struct {
 	ID         string
 	Provider   string
 	ProviderID string
+	UpdatedAt  string
 	CreatedAt  string
 }{
 	ID:         "id",
 	Provider:   "provider",
 	ProviderID: "provider_id",
+	UpdatedAt:  "updated_at",
 	CreatedAt:  "created_at",
 }
 
@@ -117,11 +120,13 @@ var OauthWhere = struct {
 	ID         whereHelperint
 	Provider   whereHelperstring
 	ProviderID whereHelperstring
+	UpdatedAt  whereHelpertime_Time
 	CreatedAt  whereHelpertime_Time
 }{
 	ID:         whereHelperint{field: "\"oauths\".\"id\""},
 	Provider:   whereHelperstring{field: "\"oauths\".\"provider\""},
 	ProviderID: whereHelperstring{field: "\"oauths\".\"provider_id\""},
+	UpdatedAt:  whereHelpertime_Time{field: "\"oauths\".\"updated_at\""},
 	CreatedAt:  whereHelpertime_Time{field: "\"oauths\".\"created_at\""},
 }
 
@@ -146,9 +151,9 @@ func (*oauthR) NewStruct() *oauthR {
 type oauthL struct{}
 
 var (
-	oauthAllColumns            = []string{"id", "provider", "provider_id", "created_at"}
+	oauthAllColumns            = []string{"id", "provider", "provider_id", "updated_at", "created_at"}
 	oauthColumnsWithoutDefault = []string{"provider", "provider_id"}
-	oauthColumnsWithDefault    = []string{"id", "created_at"}
+	oauthColumnsWithDefault    = []string{"id", "updated_at", "created_at"}
 	oauthPrimaryKeyColumns     = []string{"id"}
 )
 
@@ -156,8 +161,6 @@ type (
 	// OauthSlice is an alias for a slice of pointers to Oauth.
 	// This should generally be used opposed to []Oauth.
 	OauthSlice []*Oauth
-	// OauthHook is the signature for custom Oauth hook methods
-	OauthHook func(context.Context, boil.ContextExecutor, *Oauth) error
 
 	oauthQuery struct {
 		*queries.Query
@@ -185,176 +188,6 @@ var (
 	_ = qmhelper.Where
 )
 
-var oauthBeforeInsertHooks []OauthHook
-var oauthBeforeUpdateHooks []OauthHook
-var oauthBeforeDeleteHooks []OauthHook
-var oauthBeforeUpsertHooks []OauthHook
-
-var oauthAfterInsertHooks []OauthHook
-var oauthAfterSelectHooks []OauthHook
-var oauthAfterUpdateHooks []OauthHook
-var oauthAfterDeleteHooks []OauthHook
-var oauthAfterUpsertHooks []OauthHook
-
-// doBeforeInsertHooks executes all "before insert" hooks.
-func (o *Oauth) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range oauthBeforeInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpdateHooks executes all "before Update" hooks.
-func (o *Oauth) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range oauthBeforeUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeDeleteHooks executes all "before Delete" hooks.
-func (o *Oauth) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range oauthBeforeDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpsertHooks executes all "before Upsert" hooks.
-func (o *Oauth) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range oauthBeforeUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterInsertHooks executes all "after Insert" hooks.
-func (o *Oauth) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range oauthAfterInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterSelectHooks executes all "after Select" hooks.
-func (o *Oauth) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range oauthAfterSelectHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpdateHooks executes all "after Update" hooks.
-func (o *Oauth) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range oauthAfterUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterDeleteHooks executes all "after Delete" hooks.
-func (o *Oauth) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range oauthAfterDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpsertHooks executes all "after Upsert" hooks.
-func (o *Oauth) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range oauthAfterUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// AddOauthHook registers your hook function for all future operations.
-func AddOauthHook(hookPoint boil.HookPoint, oauthHook OauthHook) {
-	switch hookPoint {
-	case boil.BeforeInsertHook:
-		oauthBeforeInsertHooks = append(oauthBeforeInsertHooks, oauthHook)
-	case boil.BeforeUpdateHook:
-		oauthBeforeUpdateHooks = append(oauthBeforeUpdateHooks, oauthHook)
-	case boil.BeforeDeleteHook:
-		oauthBeforeDeleteHooks = append(oauthBeforeDeleteHooks, oauthHook)
-	case boil.BeforeUpsertHook:
-		oauthBeforeUpsertHooks = append(oauthBeforeUpsertHooks, oauthHook)
-	case boil.AfterInsertHook:
-		oauthAfterInsertHooks = append(oauthAfterInsertHooks, oauthHook)
-	case boil.AfterSelectHook:
-		oauthAfterSelectHooks = append(oauthAfterSelectHooks, oauthHook)
-	case boil.AfterUpdateHook:
-		oauthAfterUpdateHooks = append(oauthAfterUpdateHooks, oauthHook)
-	case boil.AfterDeleteHook:
-		oauthAfterDeleteHooks = append(oauthAfterDeleteHooks, oauthHook)
-	case boil.AfterUpsertHook:
-		oauthAfterUpsertHooks = append(oauthAfterUpsertHooks, oauthHook)
-	}
-}
-
 // One returns a single oauth record from the query.
 func (q oauthQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Oauth, error) {
 	o := &Oauth{}
@@ -369,10 +202,6 @@ func (q oauthQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Oauth,
 		return nil, errors.Wrap(err, "models: failed to execute a one query for oauths")
 	}
 
-	if err := o.doAfterSelectHooks(ctx, exec); err != nil {
-		return o, err
-	}
-
 	return o, nil
 }
 
@@ -383,14 +212,6 @@ func (q oauthQuery) All(ctx context.Context, exec boil.ContextExecutor) (OauthSl
 	err := q.Bind(ctx, exec, &o)
 	if err != nil {
 		return nil, errors.Wrap(err, "models: failed to assign all query results to Oauth slice")
-	}
-
-	if len(oauthAfterSelectHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterSelectHooks(ctx, exec); err != nil {
-				return o, err
-			}
-		}
 	}
 
 	return o, nil
@@ -489,7 +310,7 @@ func (oauthL) LoadUsers(ctx context.Context, e boil.ContextExecutor, singular bo
 	}
 
 	query := NewQuery(
-		qm.Select("\"users\".id, \"users\".name, \"users\".email, \"users\".blocked, \"users\".created_at, \"a\".\"oauth_id\""),
+		qm.Select("\"users\".id, \"users\".name, \"users\".email, \"users\".blocked, \"users\".updated_at, \"users\".created_at, \"a\".\"oauth_id\""),
 		qm.From("\"users\""),
 		qm.InnerJoin("\"oauth_users\" as \"a\" on \"users\".\"id\" = \"a\".\"user_id\""),
 		qm.WhereIn("\"a\".\"oauth_id\" in ?", args...),
@@ -510,7 +331,7 @@ func (oauthL) LoadUsers(ctx context.Context, e boil.ContextExecutor, singular bo
 		one := new(User)
 		var localJoinCol int
 
-		err = results.Scan(&one.ID, &one.Name, &one.Email, &one.Blocked, &one.CreatedAt, &localJoinCol)
+		err = results.Scan(&one.ID, &one.Name, &one.Email, &one.Blocked, &one.UpdatedAt, &one.CreatedAt, &localJoinCol)
 		if err != nil {
 			return errors.Wrap(err, "failed to scan eager loaded results for users")
 		}
@@ -529,13 +350,6 @@ func (oauthL) LoadUsers(ctx context.Context, e boil.ContextExecutor, singular bo
 		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for users")
 	}
 
-	if len(userAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
 	if singular {
 		object.R.Users = resultSlice
 		for _, foreign := range resultSlice {
@@ -747,13 +561,12 @@ func (o *Oauth) Insert(ctx context.Context, exec boil.ContextExecutor, columns b
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
+		if o.UpdatedAt.IsZero() {
+			o.UpdatedAt = currTime
+		}
 		if o.CreatedAt.IsZero() {
 			o.CreatedAt = currTime
 		}
-	}
-
-	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
-		return err
 	}
 
 	nzDefaults := queries.NonZeroDefaultSet(oauthColumnsWithDefault, o)
@@ -819,17 +632,20 @@ func (o *Oauth) Insert(ctx context.Context, exec boil.ContextExecutor, columns b
 		oauthInsertCacheMut.Unlock()
 	}
 
-	return o.doAfterInsertHooks(ctx, exec)
+	return nil
 }
 
 // Update uses an executor to update the Oauth.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
 func (o *Oauth) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
-	var err error
-	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
-		return 0, err
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		o.UpdatedAt = currTime
 	}
+
+	var err error
 	key := makeCacheKey(columns, nil)
 	oauthUpdateCacheMut.RLock()
 	cache, cached := oauthUpdateCache[key]
@@ -882,7 +698,7 @@ func (o *Oauth) Update(ctx context.Context, exec boil.ContextExecutor, columns b
 		oauthUpdateCacheMut.Unlock()
 	}
 
-	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
+	return rowsAff, nil
 }
 
 // UpdateAll updates all rows with the specified column values.
@@ -959,13 +775,10 @@ func (o *Oauth) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnC
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
+		o.UpdatedAt = currTime
 		if o.CreatedAt.IsZero() {
 			o.CreatedAt = currTime
 		}
-	}
-
-	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
-		return err
 	}
 
 	nzDefaults := queries.NonZeroDefaultSet(oauthColumnsWithDefault, o)
@@ -1069,7 +882,7 @@ func (o *Oauth) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnC
 		oauthUpsertCacheMut.Unlock()
 	}
 
-	return o.doAfterUpsertHooks(ctx, exec)
+	return nil
 }
 
 // Delete deletes a single Oauth record with an executor.
@@ -1077,10 +890,6 @@ func (o *Oauth) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnC
 func (o *Oauth) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no Oauth provided for delete")
-	}
-
-	if err := o.doBeforeDeleteHooks(ctx, exec); err != nil {
-		return 0, err
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), oauthPrimaryKeyMapping)
@@ -1099,10 +908,6 @@ func (o *Oauth) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, e
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
 		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for oauths")
-	}
-
-	if err := o.doAfterDeleteHooks(ctx, exec); err != nil {
-		return 0, err
 	}
 
 	return rowsAff, nil
@@ -1135,14 +940,6 @@ func (o OauthSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (i
 		return 0, nil
 	}
 
-	if len(oauthBeforeDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doBeforeDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
-	}
-
 	var args []interface{}
 	for _, obj := range o {
 		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), oauthPrimaryKeyMapping)
@@ -1165,14 +962,6 @@ func (o OauthSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (i
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
 		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for oauths")
-	}
-
-	if len(oauthAfterDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
 	}
 
 	return rowsAff, nil

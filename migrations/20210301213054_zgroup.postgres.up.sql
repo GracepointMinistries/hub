@@ -3,6 +3,7 @@ CREATE TABLE zgroups (
   name varchar UNIQUE NOT NULL,
   zoom_link varchar,
   archived boolean NOT NULL DEFAULT FALSE,
+  updated_at timestamptz NOT NULL DEFAULT NOW(),
   created_at timestamptz NOT NULL DEFAULT NOW()
 );
 

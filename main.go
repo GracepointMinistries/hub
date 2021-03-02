@@ -6,7 +6,7 @@ import (
 	"github.com/GracepointMinistries/hub/actions"
 )
 
-//go:generate sqlboiler -c sqlboiler.toml psql --struct-tag-casing camel
+//go:generate sqlboiler -c sqlboiler.toml psql --struct-tag-casing camel --no-hooks
 
 func main() {
 	app := actions.App()

@@ -27,6 +27,7 @@ type User struct {
 	Name      string    `boil:"name" json:"name" toml:"name" yaml:"name"`
 	Email     string    `boil:"email" json:"email" toml:"email" yaml:"email"`
 	Blocked   bool      `boil:"blocked" json:"blocked" toml:"blocked" yaml:"blocked"`
+	UpdatedAt time.Time `boil:"updated_at" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
 	CreatedAt time.Time `boil:"created_at" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -38,12 +39,14 @@ var UserColumns = struct {
 	Name      string
 	Email     string
 	Blocked   string
+	UpdatedAt string
 	CreatedAt string
 }{
 	ID:        "id",
 	Name:      "name",
 	Email:     "email",
 	Blocked:   "blocked",
+	UpdatedAt: "updated_at",
 	CreatedAt: "created_at",
 }
 
@@ -63,12 +66,14 @@ var UserWhere = struct {
 	Name      whereHelperstring
 	Email     whereHelperstring
 	Blocked   whereHelperbool
+	UpdatedAt whereHelpertime_Time
 	CreatedAt whereHelpertime_Time
 }{
 	ID:        whereHelperint{field: "\"users\".\"id\""},
 	Name:      whereHelperstring{field: "\"users\".\"name\""},
 	Email:     whereHelperstring{field: "\"users\".\"email\""},
 	Blocked:   whereHelperbool{field: "\"users\".\"blocked\""},
+	UpdatedAt: whereHelpertime_Time{field: "\"users\".\"updated_at\""},
 	CreatedAt: whereHelpertime_Time{field: "\"users\".\"created_at\""},
 }
 
@@ -96,9 +101,9 @@ func (*userR) NewStruct() *userR {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "name", "email", "blocked", "created_at"}
+	userAllColumns            = []string{"id", "name", "email", "blocked", "updated_at", "created_at"}
 	userColumnsWithoutDefault = []string{"name", "email"}
-	userColumnsWithDefault    = []string{"id", "blocked", "created_at"}
+	userColumnsWithDefault    = []string{"id", "blocked", "updated_at", "created_at"}
 	userPrimaryKeyColumns     = []string{"id"}
 )
 
@@ -106,8 +111,6 @@ type (
 	// UserSlice is an alias for a slice of pointers to User.
 	// This should generally be used opposed to []User.
 	UserSlice []*User
-	// UserHook is the signature for custom User hook methods
-	UserHook func(context.Context, boil.ContextExecutor, *User) error
 
 	userQuery struct {
 		*queries.Query
@@ -135,176 +138,6 @@ var (
 	_ = qmhelper.Where
 )
 
-var userBeforeInsertHooks []UserHook
-var userBeforeUpdateHooks []UserHook
-var userBeforeDeleteHooks []UserHook
-var userBeforeUpsertHooks []UserHook
-
-var userAfterInsertHooks []UserHook
-var userAfterSelectHooks []UserHook
-var userAfterUpdateHooks []UserHook
-var userAfterDeleteHooks []UserHook
-var userAfterUpsertHooks []UserHook
-
-// doBeforeInsertHooks executes all "before insert" hooks.
-func (o *User) doBeforeInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range userBeforeInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpdateHooks executes all "before Update" hooks.
-func (o *User) doBeforeUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range userBeforeUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeDeleteHooks executes all "before Delete" hooks.
-func (o *User) doBeforeDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range userBeforeDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doBeforeUpsertHooks executes all "before Upsert" hooks.
-func (o *User) doBeforeUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range userBeforeUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterInsertHooks executes all "after Insert" hooks.
-func (o *User) doAfterInsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range userAfterInsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterSelectHooks executes all "after Select" hooks.
-func (o *User) doAfterSelectHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range userAfterSelectHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpdateHooks executes all "after Update" hooks.
-func (o *User) doAfterUpdateHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range userAfterUpdateHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterDeleteHooks executes all "after Delete" hooks.
-func (o *User) doAfterDeleteHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range userAfterDeleteHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// doAfterUpsertHooks executes all "after Upsert" hooks.
-func (o *User) doAfterUpsertHooks(ctx context.Context, exec boil.ContextExecutor) (err error) {
-	if boil.HooksAreSkipped(ctx) {
-		return nil
-	}
-
-	for _, hook := range userAfterUpsertHooks {
-		if err := hook(ctx, exec, o); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// AddUserHook registers your hook function for all future operations.
-func AddUserHook(hookPoint boil.HookPoint, userHook UserHook) {
-	switch hookPoint {
-	case boil.BeforeInsertHook:
-		userBeforeInsertHooks = append(userBeforeInsertHooks, userHook)
-	case boil.BeforeUpdateHook:
-		userBeforeUpdateHooks = append(userBeforeUpdateHooks, userHook)
-	case boil.BeforeDeleteHook:
-		userBeforeDeleteHooks = append(userBeforeDeleteHooks, userHook)
-	case boil.BeforeUpsertHook:
-		userBeforeUpsertHooks = append(userBeforeUpsertHooks, userHook)
-	case boil.AfterInsertHook:
-		userAfterInsertHooks = append(userAfterInsertHooks, userHook)
-	case boil.AfterSelectHook:
-		userAfterSelectHooks = append(userAfterSelectHooks, userHook)
-	case boil.AfterUpdateHook:
-		userAfterUpdateHooks = append(userAfterUpdateHooks, userHook)
-	case boil.AfterDeleteHook:
-		userAfterDeleteHooks = append(userAfterDeleteHooks, userHook)
-	case boil.AfterUpsertHook:
-		userAfterUpsertHooks = append(userAfterUpsertHooks, userHook)
-	}
-}
-
 // One returns a single user record from the query.
 func (q userQuery) One(ctx context.Context, exec boil.ContextExecutor) (*User, error) {
 	o := &User{}
@@ -319,10 +152,6 @@ func (q userQuery) One(ctx context.Context, exec boil.ContextExecutor) (*User, e
 		return nil, errors.Wrap(err, "models: failed to execute a one query for users")
 	}
 
-	if err := o.doAfterSelectHooks(ctx, exec); err != nil {
-		return o, err
-	}
-
 	return o, nil
 }
 
@@ -333,14 +162,6 @@ func (q userQuery) All(ctx context.Context, exec boil.ContextExecutor) (UserSlic
 	err := q.Bind(ctx, exec, &o)
 	if err != nil {
 		return nil, errors.Wrap(err, "models: failed to assign all query results to User slice")
-	}
-
-	if len(userAfterSelectHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterSelectHooks(ctx, exec); err != nil {
-				return o, err
-			}
-		}
 	}
 
 	return o, nil
@@ -461,7 +282,7 @@ func (userL) LoadOauths(ctx context.Context, e boil.ContextExecutor, singular bo
 	}
 
 	query := NewQuery(
-		qm.Select("\"oauths\".id, \"oauths\".provider, \"oauths\".provider_id, \"oauths\".created_at, \"a\".\"user_id\""),
+		qm.Select("\"oauths\".id, \"oauths\".provider, \"oauths\".provider_id, \"oauths\".updated_at, \"oauths\".created_at, \"a\".\"user_id\""),
 		qm.From("\"oauths\""),
 		qm.InnerJoin("\"oauth_users\" as \"a\" on \"oauths\".\"id\" = \"a\".\"oauth_id\""),
 		qm.WhereIn("\"a\".\"user_id\" in ?", args...),
@@ -482,7 +303,7 @@ func (userL) LoadOauths(ctx context.Context, e boil.ContextExecutor, singular bo
 		one := new(Oauth)
 		var localJoinCol int
 
-		err = results.Scan(&one.ID, &one.Provider, &one.ProviderID, &one.CreatedAt, &localJoinCol)
+		err = results.Scan(&one.ID, &one.Provider, &one.ProviderID, &one.UpdatedAt, &one.CreatedAt, &localJoinCol)
 		if err != nil {
 			return errors.Wrap(err, "failed to scan eager loaded results for oauths")
 		}
@@ -501,13 +322,6 @@ func (userL) LoadOauths(ctx context.Context, e boil.ContextExecutor, singular bo
 		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for oauths")
 	}
 
-	if len(oauthAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
 	if singular {
 		object.R.Oauths = resultSlice
 		for _, foreign := range resultSlice {
@@ -576,7 +390,7 @@ func (userL) LoadZgroups(ctx context.Context, e boil.ContextExecutor, singular b
 	}
 
 	query := NewQuery(
-		qm.Select("\"zgroups\".id, \"zgroups\".name, \"zgroups\".zoom_link, \"zgroups\".archived, \"zgroups\".created_at, \"a\".\"user_id\""),
+		qm.Select("\"zgroups\".id, \"zgroups\".name, \"zgroups\".zoom_link, \"zgroups\".archived, \"zgroups\".updated_at, \"zgroups\".created_at, \"a\".\"user_id\""),
 		qm.From("\"zgroups\""),
 		qm.InnerJoin("\"zgroup_members\" as \"a\" on \"zgroups\".\"id\" = \"a\".\"zgroup_id\""),
 		qm.WhereIn("\"a\".\"user_id\" in ?", args...),
@@ -597,7 +411,7 @@ func (userL) LoadZgroups(ctx context.Context, e boil.ContextExecutor, singular b
 		one := new(Zgroup)
 		var localJoinCol int
 
-		err = results.Scan(&one.ID, &one.Name, &one.ZoomLink, &one.Archived, &one.CreatedAt, &localJoinCol)
+		err = results.Scan(&one.ID, &one.Name, &one.ZoomLink, &one.Archived, &one.UpdatedAt, &one.CreatedAt, &localJoinCol)
 		if err != nil {
 			return errors.Wrap(err, "failed to scan eager loaded results for zgroups")
 		}
@@ -616,13 +430,6 @@ func (userL) LoadZgroups(ctx context.Context, e boil.ContextExecutor, singular b
 		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for zgroups")
 	}
 
-	if len(zgroupAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
 	if singular {
 		object.R.Zgroups = resultSlice
 		for _, foreign := range resultSlice {
@@ -974,13 +781,12 @@ func (o *User) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
+		if o.UpdatedAt.IsZero() {
+			o.UpdatedAt = currTime
+		}
 		if o.CreatedAt.IsZero() {
 			o.CreatedAt = currTime
 		}
-	}
-
-	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
-		return err
 	}
 
 	nzDefaults := queries.NonZeroDefaultSet(userColumnsWithDefault, o)
@@ -1046,17 +852,20 @@ func (o *User) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 		userInsertCacheMut.Unlock()
 	}
 
-	return o.doAfterInsertHooks(ctx, exec)
+	return nil
 }
 
 // Update uses an executor to update the User.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
 func (o *User) Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error) {
-	var err error
-	if err = o.doBeforeUpdateHooks(ctx, exec); err != nil {
-		return 0, err
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		o.UpdatedAt = currTime
 	}
+
+	var err error
 	key := makeCacheKey(columns, nil)
 	userUpdateCacheMut.RLock()
 	cache, cached := userUpdateCache[key]
@@ -1109,7 +918,7 @@ func (o *User) Update(ctx context.Context, exec boil.ContextExecutor, columns bo
 		userUpdateCacheMut.Unlock()
 	}
 
-	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
+	return rowsAff, nil
 }
 
 // UpdateAll updates all rows with the specified column values.
@@ -1186,13 +995,10 @@ func (o *User) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCo
 	if !boil.TimestampsAreSkipped(ctx) {
 		currTime := time.Now().In(boil.GetLocation())
 
+		o.UpdatedAt = currTime
 		if o.CreatedAt.IsZero() {
 			o.CreatedAt = currTime
 		}
-	}
-
-	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
-		return err
 	}
 
 	nzDefaults := queries.NonZeroDefaultSet(userColumnsWithDefault, o)
@@ -1296,7 +1102,7 @@ func (o *User) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCo
 		userUpsertCacheMut.Unlock()
 	}
 
-	return o.doAfterUpsertHooks(ctx, exec)
+	return nil
 }
 
 // Delete deletes a single User record with an executor.
@@ -1304,10 +1110,6 @@ func (o *User) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCo
 func (o *User) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no User provided for delete")
-	}
-
-	if err := o.doBeforeDeleteHooks(ctx, exec); err != nil {
-		return 0, err
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), userPrimaryKeyMapping)
@@ -1326,10 +1128,6 @@ func (o *User) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, er
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
 		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for users")
-	}
-
-	if err := o.doAfterDeleteHooks(ctx, exec); err != nil {
-		return 0, err
 	}
 
 	return rowsAff, nil
@@ -1362,14 +1160,6 @@ func (o UserSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (in
 		return 0, nil
 	}
 
-	if len(userBeforeDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doBeforeDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
-	}
-
 	var args []interface{}
 	for _, obj := range o {
 		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), userPrimaryKeyMapping)
@@ -1392,14 +1182,6 @@ func (o UserSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (in
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
 		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for users")
-	}
-
-	if len(userAfterDeleteHooks) != 0 {
-		for _, obj := range o {
-			if err := obj.doAfterDeleteHooks(ctx, exec); err != nil {
-				return 0, err
-			}
-		}
 	}
 
 	return rowsAff, nil
