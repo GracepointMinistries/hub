@@ -2,8 +2,9 @@
 generate:
 	@echo "Running go generate"
 	@SWAGGER_GENERATE_EXTENSION=false go generate
-	@#echo "Generating dart client"
-	@#swagger-codegen generate -i swagger.json -l dart -o dart/client
+	@echo "Generating dart client"
+	@swagger-codegen generate -i swagger.json -l dart -o dart/client
+	@swagger-codegen generate -i swagger.json -l go -o client -DpackageName=client
 
 .PHONY: deps
 deps:

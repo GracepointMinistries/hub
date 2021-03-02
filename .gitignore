@@ -31,3 +31,14 @@ dart/client/.analysis_options
 dart/client/.swagger-codegen-ignore
 dart/client/git_push.sh
 dart/client/README.md
+dart/client/.dart_tool
+dart
+
+client/.swagger-codegen
+client/docs
+client/api
+client/.swagger-codegen-ignore
+client/.travis.yml
+client/git_push.sh
+client/README.md
+client
