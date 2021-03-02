@@ -576,7 +576,7 @@ func (userL) LoadZgroups(ctx context.Context, e boil.ContextExecutor, singular b
 	}
 
 	query := NewQuery(
-		qm.Select("\"zgroups\".id, \"zgroups\".name, \"zgroups\".archived, \"zgroups\".created_at, \"a\".\"user_id\""),
+		qm.Select("\"zgroups\".id, \"zgroups\".name, \"zgroups\".zoom_link, \"zgroups\".archived, \"zgroups\".created_at, \"a\".\"user_id\""),
 		qm.From("\"zgroups\""),
 		qm.InnerJoin("\"zgroup_members\" as \"a\" on \"zgroups\".\"id\" = \"a\".\"zgroup_id\""),
 		qm.WhereIn("\"a\".\"user_id\" in ?", args...),
@@ -597,7 +597,7 @@ func (userL) LoadZgroups(ctx context.Context, e boil.ContextExecutor, singular b
 		one := new(Zgroup)
 		var localJoinCol int
 
-		err = results.Scan(&one.ID, &one.Name, &one.Archived, &one.CreatedAt, &localJoinCol)
+		err = results.Scan(&one.ID, &one.Name, &one.ZoomLink, &one.Archived, &one.CreatedAt, &localJoinCol)
 		if err != nil {
 			return errors.Wrap(err, "failed to scan eager loaded results for zgroups")
 		}

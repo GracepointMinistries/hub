@@ -1,6 +1,7 @@
 CREATE TABLE zgroups (
   id serial PRIMARY KEY,
   name varchar UNIQUE NOT NULL,
+  zoom_link varchar,
   archived boolean NOT NULL DEFAULT FALSE,
   created_at timestamptz NOT NULL DEFAULT NOW()
 );

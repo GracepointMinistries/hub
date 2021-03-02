@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -23,10 +24,11 @@ import (
 
 // Zgroup is an object representing the database table.
 type Zgroup struct {
-	ID        int       `boil:"id" json:"id" toml:"id" yaml:"id"`
-	Name      string    `boil:"name" json:"name" toml:"name" yaml:"name"`
-	Archived  bool      `boil:"archived" json:"archived" toml:"archived" yaml:"archived"`
-	CreatedAt time.Time `boil:"created_at" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
+	ID        int         `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Name      string      `boil:"name" json:"name" toml:"name" yaml:"name"`
+	ZoomLink  null.String `boil:"zoom_link" json:"zoomLink,omitempty" toml:"zoomLink" yaml:"zoomLink,omitempty"`
+	Archived  bool        `boil:"archived" json:"archived" toml:"archived" yaml:"archived"`
+	CreatedAt time.Time   `boil:"created_at" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
 
 	R *zgroupR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L zgroupL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -35,25 +37,52 @@ type Zgroup struct {
 var ZgroupColumns = struct {
 	ID        string
 	Name      string
+	ZoomLink  string
 	Archived  string
 	CreatedAt string
 }{
 	ID:        "id",
 	Name:      "name",
+	ZoomLink:  "zoom_link",
 	Archived:  "archived",
 	CreatedAt: "created_at",
 }
 
 // Generated where
 
+type whereHelpernull_String struct{ field string }
+
+func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
 var ZgroupWhere = struct {
 	ID        whereHelperint
 	Name      whereHelperstring
+	ZoomLink  whereHelpernull_String
 	Archived  whereHelperbool
 	CreatedAt whereHelpertime_Time
 }{
 	ID:        whereHelperint{field: "\"zgroups\".\"id\""},
 	Name:      whereHelperstring{field: "\"zgroups\".\"name\""},
+	ZoomLink:  whereHelpernull_String{field: "\"zgroups\".\"zoom_link\""},
 	Archived:  whereHelperbool{field: "\"zgroups\".\"archived\""},
 	CreatedAt: whereHelpertime_Time{field: "\"zgroups\".\"created_at\""},
 }
@@ -79,8 +108,8 @@ func (*zgroupR) NewStruct() *zgroupR {
 type zgroupL struct{}
 
 var (
-	zgroupAllColumns            = []string{"id", "name", "archived", "created_at"}
-	zgroupColumnsWithoutDefault = []string{"name"}
+	zgroupAllColumns            = []string{"id", "name", "zoom_link", "archived", "created_at"}
+	zgroupColumnsWithoutDefault = []string{"name", "zoom_link"}
 	zgroupColumnsWithDefault    = []string{"id", "archived", "created_at"}
 	zgroupPrimaryKeyColumns     = []string{"id"}
 )
