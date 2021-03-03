@@ -119,12 +119,23 @@ func requireLoggedInUser(next buffalo.Handler) buffalo.Handler {
 		}
 		id := c.Session().Get("ID").(int)
 		sessionID := c.Session().Get("SessionID").(int)
-		valid, err := modelext.ValidateUserSession(c, id, sessionID)
-		if err != nil {
-			return c.Error(http.StatusInternalServerError, err)
-		}
-		if !valid {
-			return c.Redirect(http.StatusSeeOther, "/login")
+		if c.Session().Get("Admin") == nil {
+			valid, err := modelext.ValidateUserSession(c, id, sessionID)
+			if err != nil {
+				return c.Error(http.StatusInternalServerError, err)
+			}
+			if !valid {
+				return c.Redirect(http.StatusSeeOther, "/login")
+			}
+		} else {
+			admin := c.Session().Get("Admin").(string)
+			valid, err := modelext.ValidateAdminSession(c, admin, sessionID)
+			if err != nil {
+				return c.Error(http.StatusInternalServerError, err)
+			}
+			if !valid {
+				return c.Redirect(http.StatusSeeOther, "/login")
+			}
 		}
 		c.Set("id", c.Session().Get("ID"))
 		c.Set("email", c.Session().Get("Email"))

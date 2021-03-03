@@ -17,7 +17,7 @@ func DeleteUserSession(c buffalo.Context, id int) error {
 // DeleteAdminSession deletes the session of an admin if it exists
 func DeleteAdminSession(c buffalo.Context, id int) error {
 	_, err := models.AdminSessions(
-		models.SessionWhere.ID.EQ(id),
+		models.AdminSessionWhere.ID.EQ(id),
 	).DeleteAll(c, getTx(c))
 	return err
 }
