@@ -2,6 +2,7 @@ package actions
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/gobuffalo/buffalo"
 )
@@ -32,4 +33,8 @@ func setupErrorHandlers(api *buffalo.App) {
 	api.ErrorHandlers[403] = apiErrorHandler
 	api.ErrorHandlers[422] = apiErrorHandler
 	api.ErrorHandlers[500] = apiErrorHandler
+}
+
+func getHeaderToken(c buffalo.Context) string {
+	return strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Bearer ")
 }
