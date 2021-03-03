@@ -22,6 +22,21 @@
         "responses": {
           "200": {
             "$ref": "#/responses/adminUsersResponse"
+          },
+          "400": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/apiErrorResponse"
           }
         }
       }
@@ -47,6 +62,21 @@
         "responses": {
           "200": {
             "$ref": "#/responses/adminZgroupsResponse"
+          },
+          "400": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/apiErrorResponse"
           }
         }
       }
@@ -67,6 +97,108 @@
         "responses": {
           "200": {
             "$ref": "#/responses/adminZgroupResponse"
+          },
+          "400": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/apiErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/exchange/admin": {
+      "post": {
+        "summary": "Exchanges a google authentication token with an admin api token.",
+        "operationId": "exchangeAdmin",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/tokenResponse"
+          },
+          "400": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/apiErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/exchange/facebook": {
+      "post": {
+        "summary": "Exchanges a facebook authentication token with an api token.",
+        "operationId": "exchangeFacebook",
+        "parameters": [
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/TokenPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/tokenResponse"
+          },
+          "400": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/apiErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/exchange/google": {
+      "post": {
+        "summary": "Exchanges a google authentication token with an api token.",
+        "operationId": "exchangeGoogle",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/tokenResponse"
+          },
+          "400": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/apiErrorResponse"
           }
         }
       }
@@ -78,12 +210,81 @@
         "responses": {
           "200": {
             "$ref": "#/responses/profileResponse"
+          },
+          "400": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/apiErrorResponse"
           }
         }
       }
     }
   },
   "definitions": {
+    "APIErrorPayload": {
+      "description": "APIErrorPayload wraps errors in a well-defined api payload",
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        }
+      }
+    },
+    "AdminUsersResponsePayload": {
+      "description": "AdminUsersResponsePayload contains the paginated users",
+      "type": "object",
+      "properties": {
+        "pagination": {
+          "$ref": "#/definitions/Pagination"
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/User"
+          }
+        }
+      }
+    },
+    "AdminZgroupResponsePayload": {
+      "description": "AdminZgroupResponsePayload contains the queried zgroup and its users",
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/User"
+          }
+        },
+        "zgroup": {
+          "$ref": "#/definitions/Zgroup"
+        }
+      }
+    },
+    "AdminZgroupsResponsePayload": {
+      "description": "AdminZgroupsResponsePayload contains paginated zgroups",
+      "type": "object",
+      "properties": {
+        "pagination": {
+          "$ref": "#/definitions/Pagination"
+        },
+        "zgroups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Zgroup"
+          }
+        }
+      }
+    },
     "Pagination": {
       "description": "Pagination holds query data for pagination",
       "type": "object",
@@ -95,6 +296,27 @@
         "limit": {
           "type": "integer",
           "format": "int64"
+        }
+      }
+    },
+    "ProfileResponsePayload": {
+      "description": "ProfileResponsePayload contains user profile information",
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/User"
+        },
+        "zgroup": {
+          "$ref": "#/definitions/Zgroup"
+        }
+      }
+    },
+    "TokenPayload": {
+      "description": "TokenPayload contain the body parameters for a token exchange",
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
         }
       }
     },
@@ -160,66 +382,37 @@
     "adminUsersResponse": {
       "description": "AdminUsersResponse returns the queried users",
       "schema": {
-        "type": "object",
-        "properties": {
-          "pagination": {
-            "$ref": "#/definitions/Pagination"
-          },
-          "users": {
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/User"
-            }
-          }
-        }
+        "$ref": "#/definitions/AdminUsersResponsePayload"
       }
     },
     "adminZgroupResponse": {
       "description": "AdminZgroupResponse returns the queried zgroups",
       "schema": {
-        "type": "object",
-        "properties": {
-          "users": {
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/User"
-            }
-          },
-          "zgroup": {
-            "$ref": "#/definitions/Zgroup"
-          }
-        }
+        "$ref": "#/definitions/AdminZgroupResponsePayload"
       }
     },
     "adminZgroupsResponse": {
       "description": "AdminZgroupsResponse returns the queried zgroups",
       "schema": {
-        "type": "object",
-        "properties": {
-          "pagination": {
-            "$ref": "#/definitions/Pagination"
-          },
-          "zgroups": {
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/Zgroup"
-            }
-          }
-        }
+        "$ref": "#/definitions/AdminZgroupsResponsePayload"
+      }
+    },
+    "apiErrorResponse": {
+      "description": "APIErrorResponse returns an api error",
+      "schema": {
+        "$ref": "#/definitions/APIErrorPayload"
       }
     },
     "profileResponse": {
       "description": "ProfileResponse returns the user profile information",
       "schema": {
-        "type": "object",
-        "properties": {
-          "user": {
-            "$ref": "#/definitions/User"
-          },
-          "zgroup": {
-            "$ref": "#/definitions/Zgroup"
-          }
-        }
+        "$ref": "#/definitions/ProfileResponsePayload"
+      }
+    },
+    "tokenResponse": {
+      "description": "TokenResponse is a response after a token exchange",
+      "schema": {
+        "$ref": "#/definitions/TokenPayload"
       }
     }
   }

@@ -3,6 +3,7 @@ module github.com/GracepointMinistries/hub
 go 1.13
 
 require (
+	github.com/antihax/optional v1.0.0
 	github.com/friendsofgo/errors v0.9.2
 	github.com/gobuffalo/buffalo v0.15.5
 	github.com/gobuffalo/buffalo-pop v1.23.1
@@ -24,6 +25,7 @@ require (
 	github.com/volatiletech/randomize v0.0.1
 	github.com/volatiletech/sqlboiler/v4 v4.4.0
 	github.com/volatiletech/strmangle v0.0.1
-	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43 // indirect
+	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 	golang.org/x/sys v0.0.0-20200905004654-be1d3432aa8f // indirect
+	gopkg.in/square/go-jose.v2 v2.5.1
 )

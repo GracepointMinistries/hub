@@ -5,19 +5,7 @@ import (
 
 	"github.com/GracepointMinistries/hub/modelext"
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/buffalo/render"
 )
-
-// APIError wraps errors in a well-defined api payload
-type APIError struct {
-	Error string `json:"error"`
-}
-
-func apiError(message string) render.Renderer {
-	return r.JSON(&APIError{
-		Error: message,
-	})
-}
 
 func isNil(c interface{}) bool {
 	return c == nil || (reflect.ValueOf(c).Kind() == reflect.Ptr && reflect.ValueOf(c).IsNil())

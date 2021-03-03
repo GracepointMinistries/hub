@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/buffalo-pop/pop/popmw"
 	"github.com/gobuffalo/envy"
 	forcessl "github.com/gobuffalo/mw-forcessl"
-	"github.com/golang/gddo/httputil"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
@@ -84,6 +83,12 @@ func App() *buffalo.App {
 		{
 			// api resources
 			api := app.Group("/api/v1")
+			setupErrorHandlers(api)
+
+			api.POST("/exchange/admin", apiExchangeAdminToken)
+			api.POST("/exchange/google", apiExchangeGoogleToken)
+			api.POST("/exchange/facebook", apiExchangeFacebookToken)
+
 			main := api.Group("")
 			main.Use(requireAPIUser)
 			main.GET("/profile", apiProfile)
@@ -135,23 +140,4 @@ func forceSSL() buffalo.MiddlewareFunc {
 		SSLRedirect:     currentEnvironment.IsDeployed(),
 		SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
 	})
-}
-
-type acceptType int
-
-const (
-	acceptJSON acceptType = iota
-	acceptHTML
-)
-
-func acceptContentType(c buffalo.Context) acceptType {
-	val := httputil.NegotiateContentType(c.Request(), []string{"application/json", "text/html"}, "text/html")
-	switch val {
-	case "application/json":
-		return acceptJSON
-	case "text/html":
-		return acceptHTML
-	default:
-		panic(fmt.Sprintf("got negotiated Accept header that makes no sense: %s", val))
-	}
 }

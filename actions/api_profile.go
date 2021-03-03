@@ -12,30 +12,31 @@ import (
 // swagger:response profileResponse
 type ProfileResponse struct {
 	//in:body
-	Body struct {
-		User   *models.User   `json:"user"`
-		Zgroup *models.Zgroup `json:"zgroup"`
-	}
+	Body ProfileResponsePayload
 }
 
-func profileResponse(user *models.User, zgroup *models.Zgroup) *ProfileResponse {
-	response := &ProfileResponse{}
-	response.Body.User = user
-	response.Body.Zgroup = zgroup
-	return response
+// ProfileResponsePayload contains user profile information
+type ProfileResponsePayload struct {
+	User   *models.User   `json:"user"`
+	Zgroup *models.Zgroup `json:"zgroup"`
 }
 
 // swagger:route GET /api/v1/profile profile
 // Returns the users profile.
 // responses:
 //   200: profileResponse
+//	 400: apiErrorResponse
+//	 401: apiErrorResponse
+//	 403: apiErrorResponse
+//	 422: apiErrorResponse
+//	 500: apiErrorResponse
 func apiProfile(c buffalo.Context) error {
 	user, err := modelext.FindProfile(c, c.Session().Get("ID").(int))
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}
-	return c.Render(http.StatusOK, r.JSON(profileResponse(
-		user,
-		modelext.ZgroupForUser(user),
-	).Body))
+	return c.Render(http.StatusOK, r.JSON(&ProfileResponsePayload{
+		User:   user,
+		Zgroup: modelext.ZgroupForUser(user),
+	}))
 }

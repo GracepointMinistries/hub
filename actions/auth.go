@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -53,7 +54,7 @@ func adminLogoutPage(c buffalo.Context) error {
 func requireAPIAdmin(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		if c.Session().Get("Admin") == nil {
-			return c.Render(http.StatusUnauthorized, apiError("unauthorized"))
+			return c.Error(http.StatusUnauthorized, errors.New("unauthorized"))
 		}
 		return next(c)
 	}
@@ -103,7 +104,7 @@ func logoutPage(c buffalo.Context) error {
 func requireAPIUser(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
 		if c.Session().Get("ID") == nil {
-			return c.Render(http.StatusUnauthorized, apiError("unauthorized"))
+			return c.Error(http.StatusUnauthorized, errors.New("unauthorized"))
 		}
 		return next(c)
 	}
