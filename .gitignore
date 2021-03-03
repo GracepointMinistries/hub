@@ -48,4 +48,4 @@ terraform.tfvars
 /client/git_push.sh
 /client/README.md
 
-/cmd/hub-cli
+/cli/hub-cli

@@ -111,7 +111,10 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(os.Stderr, "Error:", err)
 		os.Exit(1)
 	}
-	fmt.Printf("Token: %s\n", sessionToken.Token)
+	fileConfig.Host = host
+	fileConfig.Token = sessionToken.Token
+	writeConfigFile()
+
 	msg := "<p><strong>Success!</strong></p>"
 	msg = msg + "<p>You are authenticated and can now return to the CLI.</p>"
 	fmt.Fprintf(w, msg)
