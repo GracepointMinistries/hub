@@ -1,8 +1,10 @@
 package actions
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"strings"
 
 	jose "gopkg.in/square/go-jose.v2"
 )
@@ -28,6 +30,24 @@ func init() {
 	encrypter = joseEncrypter
 }
 
+func webBase64Encode(msg []byte) string {
+	encoded := base64.StdEncoding.EncodeToString(msg)
+	encoded = strings.Replace(encoded, "+", "-", -1)
+	encoded = strings.Replace(encoded, "/", "_", -1)
+	encoded = strings.Replace(encoded, "=", "", -1)
+	return encoded
+}
+
+func webBase64Decode(encoded string) (string, error) {
+	encoded = strings.Replace(encoded, "-", "+", -1)
+	encoded = strings.Replace(encoded, "_", "/", -1)
+	data, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
+}
+
 type tokenPayload struct {
 	Admin     string `json:"admin,omitempty"`
 	ID        int    `json:"id,omitempty"`
@@ -43,7 +63,7 @@ func generateToken(payload *tokenPayload) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return encryption.FullSerialize(), nil
+	return webBase64Encode([]byte(encryption.FullSerialize())), nil
 }
 
 func generateAdminToken(admin string, session int) (string, error) {
@@ -61,7 +81,11 @@ func generateUserToken(user, session int) (string, error) {
 }
 
 func parseToken(token string) (*tokenPayload, error) {
-	encrypted, err := jose.ParseEncrypted(token)
+	decodedToken, err := webBase64Decode(token)
+	if err != nil {
+		return nil, err
+	}
+	encrypted, err := jose.ParseEncrypted(decodedToken)
 	if err != nil {
 		return nil, err
 	}

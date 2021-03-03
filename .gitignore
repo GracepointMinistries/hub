@@ -47,4 +47,3 @@ terraform.tfvars
 /client/.travis.yml
 /client/git_push.sh
 /client/README.md
-/client

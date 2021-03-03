@@ -120,6 +120,15 @@
       "post": {
         "summary": "Exchanges a google authentication token with an admin api token.",
         "operationId": "exchangeAdmin",
+        "parameters": [
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/TokenPayload"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "$ref": "#/responses/tokenResponse"
@@ -181,6 +190,15 @@
       "post": {
         "summary": "Exchanges a google authentication token with an api token.",
         "operationId": "exchangeGoogle",
+        "parameters": [
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/TokenPayload"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "$ref": "#/responses/tokenResponse"

@@ -4,6 +4,8 @@ go 1.13
 
 require (
 	github.com/antihax/optional v1.0.0
+	github.com/coreos/go-oidc v2.2.1+incompatible
+	github.com/fatih/color v1.9.0
 	github.com/friendsofgo/errors v0.9.2
 	github.com/gobuffalo/buffalo v0.15.5
 	github.com/gobuffalo/buffalo-pop v1.23.1
@@ -19,7 +21,11 @@ require (
 	github.com/lib/pq v1.3.0
 	github.com/markbates/goth v1.59.0
 	github.com/markbates/grift v1.5.0
+	github.com/mitchellh/go-homedir v1.1.0
+	github.com/pquerna/cachecontrol v0.0.0-20201205024021-ac21108117ac // indirect
 	github.com/rs/cors v1.7.0
+	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
+	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.6.3
 	github.com/unrolled/secure v1.0.7
 	github.com/volatiletech/randomize v0.0.1

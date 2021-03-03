@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"strings"
+
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/envy"
 	"github.com/gorilla/sessions"
@@ -14,7 +16,7 @@ func getSecret(environment string) string {
 	// In production a SESSION_SECRET must be set!
 	if secret == "" {
 		if environment == "development" || environment == "test" {
-			secret = "buffalo-secret"
+			secret = strings.Repeat("x", 32)
 		} else {
 			panic("Unless you set SESSION_SECRET env variable, your session storage is not protected!")
 		}
