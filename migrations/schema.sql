@@ -35,6 +35,41 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: admin_sessions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.admin_sessions (
+    id integer NOT NULL,
+    email character varying NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.admin_sessions OWNER TO postgres;
+
+--
+-- Name: admin_sessions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.admin_sessions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.admin_sessions_id_seq OWNER TO postgres;
+
+--
+-- Name: admin_sessions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.admin_sessions_id_seq OWNED BY public.admin_sessions.id;
+
+
+--
 -- Name: oauth_users; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -93,6 +128,42 @@ CREATE TABLE public.schema_migration (
 
 
 ALTER TABLE public.schema_migration OWNER TO postgres;
+
+--
+-- Name: sessions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.sessions (
+    id integer NOT NULL,
+    ip character varying NOT NULL,
+    user_id integer NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.sessions OWNER TO postgres;
+
+--
+-- Name: sessions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.sessions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.sessions_id_seq OWNER TO postgres;
+
+--
+-- Name: sessions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.sessions_id_seq OWNED BY public.sessions.id;
+
 
 --
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres
@@ -184,10 +255,24 @@ ALTER SEQUENCE public.zgroups_id_seq OWNED BY public.zgroups.id;
 
 
 --
+-- Name: admin_sessions id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.admin_sessions ALTER COLUMN id SET DEFAULT nextval('public.admin_sessions_id_seq'::regclass);
+
+
+--
 -- Name: oauths id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.oauths ALTER COLUMN id SET DEFAULT nextval('public.oauths_id_seq'::regclass);
+
+
+--
+-- Name: sessions id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.sessions ALTER COLUMN id SET DEFAULT nextval('public.sessions_id_seq'::regclass);
 
 
 --
@@ -202,6 +287,14 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 --
 
 ALTER TABLE ONLY public.zgroups ALTER COLUMN id SET DEFAULT nextval('public.zgroups_id_seq'::regclass);
+
+
+--
+-- Name: admin_sessions admin_sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.admin_sessions
+    ADD CONSTRAINT admin_sessions_pkey PRIMARY KEY (id);
 
 
 --
@@ -226,6 +319,14 @@ ALTER TABLE ONLY public.oauths
 
 ALTER TABLE ONLY public.oauths
     ADD CONSTRAINT oauths_provider_provider_id_key UNIQUE (provider, provider_id);
+
+
+--
+-- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.sessions
+    ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
 
 
 --
@@ -296,6 +397,14 @@ ALTER TABLE ONLY public.oauth_users
 --
 
 ALTER TABLE ONLY public.zgroup_members
+    ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: sessions fk_user; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.sessions
     ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 

@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/GracepointMinistries/hub/modelext"
@@ -28,6 +29,16 @@ func init() {
 
 func getHost(server *buffalo.App) string {
 	return envy.Get("HOST", server.Host)
+}
+
+func userIP(request *http.Request) string {
+	if ip := request.Header.Get("X-Real-Ip"); ip != "" {
+		return ip
+	}
+	if ip := request.Header.Get("X-Forwarded-For"); ip != "" {
+		return ip
+	}
+	return request.RemoteAddr
 }
 
 var app *buffalo.App

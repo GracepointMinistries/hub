@@ -4,14 +4,18 @@
 package models
 
 var TableNames = struct {
+	AdminSessions string
 	OauthUsers    string
 	Oauths        string
+	Sessions      string
 	Users         string
 	ZgroupMembers string
 	Zgroups       string
 }{
+	AdminSessions: "admin_sessions",
 	OauthUsers:    "oauth_users",
 	Oauths:        "oauths",
+	Sessions:      "sessions",
 	Users:         "users",
 	ZgroupMembers: "zgroup_members",
 	Zgroups:       "zgroups",
