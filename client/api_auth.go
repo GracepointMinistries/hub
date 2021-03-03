@@ -11,8 +11,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"fmt"
-	"github.com/antihax/optional"
 )
 
 // Linger please
@@ -20,45 +18,31 @@ var (
 	_ context.Context
 )
 
-type DefaultApiService service
+type AuthApiService service
 
 /*
-DefaultApiService Returns a paginated list of users.
+AuthApiService Exchanges a google authentication token with an admin api token.
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param optional nil or *DefaultApiAdminUsersOpts - Optional Parameters:
-     * @param "Limit" (optional.Int64) - 
-     * @param "Cursor" (optional.Int64) - 
+ * @param body
 
-@return AdminUsersResponsePayload
+@return TokenPayload
 */
-
-type DefaultApiAdminUsersOpts struct { 
-	Limit optional.Int64
-	Cursor optional.Int64
-}
-
-func (a *DefaultApiService) AdminUsers(ctx context.Context, localVarOptionals *DefaultApiAdminUsersOpts) (AdminUsersResponsePayload, *http.Response, error) {
+func (a *AuthApiService) ExchangeAdmin(ctx context.Context, body TokenPayload) (TokenPayload, *http.Response, error) {
 	var (
-		localVarHttpMethod = strings.ToUpper("Get")
+		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
 		localVarFileName   string
 		localVarFileBytes  []byte
-		localVarReturnValue AdminUsersResponsePayload
+		localVarReturnValue TokenPayload
 	)
 
 	// create path and map variables
-	localVarPath := a.client.cfg.BasePath + "/api/v1/admin/users"
+	localVarPath := a.client.cfg.BasePath + "/api/v1/exchange/admin"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarOptionals != nil && localVarOptionals.Limit.IsSet() {
-		localVarQueryParams.Add("limit", parameterToString(localVarOptionals.Limit.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Cursor.IsSet() {
-		localVarQueryParams.Add("cursor", parameterToString(localVarOptionals.Cursor.Value(), ""))
-	}
 	// to determine the Content-Type header
 	localVarHttpContentTypes := []string{}
 
@@ -76,6 +60,8 @@ func (a *DefaultApiService) AdminUsers(ctx context.Context, localVarOptionals *D
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
+	// body params
+	localVarPostBody = &body
 	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -105,7 +91,7 @@ func (a *DefaultApiService) AdminUsers(ctx context.Context, localVarOptionals *D
 		}
 		
 		if localVarHttpResponse.StatusCode == 200 {
-			var v AdminUsersResponsePayload
+			var v TokenPayload
 			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
 				if err != nil {
 					newErr.error = err.Error()
@@ -177,24 +163,23 @@ func (a *DefaultApiService) AdminUsers(ctx context.Context, localVarOptionals *D
 }
 
 /*
-DefaultApiService Returns a zGroup and its users.
+AuthApiService Exchanges a facebook authentication token with an api token.
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param id
+ * @param body
 
-@return AdminZgroupResponsePayload
+@return TokenPayload
 */
-func (a *DefaultApiService) AdminZgroup(ctx context.Context, id int64) (AdminZgroupResponsePayload, *http.Response, error) {
+func (a *AuthApiService) ExchangeFacebook(ctx context.Context, body TokenPayload) (TokenPayload, *http.Response, error) {
 	var (
-		localVarHttpMethod = strings.ToUpper("Get")
+		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
 		localVarFileName   string
 		localVarFileBytes  []byte
-		localVarReturnValue AdminZgroupResponsePayload
+		localVarReturnValue TokenPayload
 	)
 
 	// create path and map variables
-	localVarPath := a.client.cfg.BasePath + "/api/v1/admin/zgroups/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", fmt.Sprintf("%v", id), -1)
+	localVarPath := a.client.cfg.BasePath + "/api/v1/exchange/facebook"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -217,6 +202,8 @@ func (a *DefaultApiService) AdminZgroup(ctx context.Context, id int64) (AdminZgr
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
+	// body params
+	localVarPostBody = &body
 	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -246,7 +233,7 @@ func (a *DefaultApiService) AdminZgroup(ctx context.Context, id int64) (AdminZgr
 		}
 		
 		if localVarHttpResponse.StatusCode == 200 {
-			var v AdminZgroupResponsePayload
+			var v TokenPayload
 			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
 				if err != nil {
 					newErr.error = err.Error()
@@ -318,42 +305,28 @@ func (a *DefaultApiService) AdminZgroup(ctx context.Context, id int64) (AdminZgr
 }
 
 /*
-DefaultApiService Returns a paginated list of zGroups.
+AuthApiService Exchanges a google authentication token with an api token.
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param optional nil or *DefaultApiAdminZgroupsOpts - Optional Parameters:
-     * @param "Limit" (optional.Int64) - 
-     * @param "Cursor" (optional.Int64) - 
+ * @param body
 
-@return AdminZgroupsResponsePayload
+@return TokenPayload
 */
-
-type DefaultApiAdminZgroupsOpts struct { 
-	Limit optional.Int64
-	Cursor optional.Int64
-}
-
-func (a *DefaultApiService) AdminZgroups(ctx context.Context, localVarOptionals *DefaultApiAdminZgroupsOpts) (AdminZgroupsResponsePayload, *http.Response, error) {
+func (a *AuthApiService) ExchangeGoogle(ctx context.Context, body TokenPayload) (TokenPayload, *http.Response, error) {
 	var (
-		localVarHttpMethod = strings.ToUpper("Get")
+		localVarHttpMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
 		localVarFileName   string
 		localVarFileBytes  []byte
-		localVarReturnValue AdminZgroupsResponsePayload
+		localVarReturnValue TokenPayload
 	)
 
 	// create path and map variables
-	localVarPath := a.client.cfg.BasePath + "/api/v1/admin/zgroups"
+	localVarPath := a.client.cfg.BasePath + "/api/v1/exchange/google"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if localVarOptionals != nil && localVarOptionals.Limit.IsSet() {
-		localVarQueryParams.Add("limit", parameterToString(localVarOptionals.Limit.Value(), ""))
-	}
-	if localVarOptionals != nil && localVarOptionals.Cursor.IsSet() {
-		localVarQueryParams.Add("cursor", parameterToString(localVarOptionals.Cursor.Value(), ""))
-	}
 	// to determine the Content-Type header
 	localVarHttpContentTypes := []string{}
 
@@ -371,6 +344,8 @@ func (a *DefaultApiService) AdminZgroups(ctx context.Context, localVarOptionals 
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
+	// body params
+	localVarPostBody = &body
 	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -400,146 +375,7 @@ func (a *DefaultApiService) AdminZgroups(ctx context.Context, localVarOptionals 
 		}
 		
 		if localVarHttpResponse.StatusCode == 200 {
-			var v AdminZgroupsResponsePayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		if localVarHttpResponse.StatusCode == 400 {
-			var v ApiErrorPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		if localVarHttpResponse.StatusCode == 401 {
-			var v ApiErrorPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		if localVarHttpResponse.StatusCode == 403 {
-			var v ApiErrorPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		if localVarHttpResponse.StatusCode == 422 {
-			var v ApiErrorPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		if localVarHttpResponse.StatusCode == 500 {
-			var v ApiErrorPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		return localVarReturnValue, localVarHttpResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHttpResponse, nil
-}
-
-/*
-DefaultApiService Returns the users profile.
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-
-@return ProfileResponsePayload
-*/
-func (a *DefaultApiService) Profile(ctx context.Context) (ProfileResponsePayload, *http.Response, error) {
-	var (
-		localVarHttpMethod = strings.ToUpper("Get")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
-		localVarReturnValue ProfileResponsePayload
-	)
-
-	// create path and map variables
-	localVarPath := a.client.cfg.BasePath + "/api/v1/profile"
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-
-	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
-	}
-
-	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{}
-
-	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
-	}
-	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHttpResponse, err := a.client.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
-	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if localVarHttpResponse.StatusCode < 300 {
-		// If we succeed, return the data, otherwise pass on to decode error.
-		err = a.client.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-		return localVarReturnValue, localVarHttpResponse, err
-	}
-
-	if localVarHttpResponse.StatusCode >= 300 {
-		newErr := GenericSwaggerError{
-			body: localVarBody,
-			error: localVarHttpResponse.Status,
-		}
-		
-		if localVarHttpResponse.StatusCode == 200 {
-			var v ProfileResponsePayload
+			var v TokenPayload
 			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
 				if err != nil {
 					newErr.error = err.Error()

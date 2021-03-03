@@ -118,12 +118,16 @@
     },
     "/api/v1/exchange/admin": {
       "post": {
+        "tags": [
+          "auth"
+        ],
         "summary": "Exchanges a google authentication token with an admin api token.",
         "operationId": "exchangeAdmin",
         "parameters": [
           {
             "name": "Body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/TokenPayload"
             }
@@ -153,12 +157,16 @@
     },
     "/api/v1/exchange/facebook": {
       "post": {
+        "tags": [
+          "auth"
+        ],
         "summary": "Exchanges a facebook authentication token with an api token.",
         "operationId": "exchangeFacebook",
         "parameters": [
           {
             "name": "Body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/TokenPayload"
             }
@@ -188,12 +196,16 @@
     },
     "/api/v1/exchange/google": {
       "post": {
+        "tags": [
+          "auth"
+        ],
         "summary": "Exchanges a google authentication token with an api token.",
         "operationId": "exchangeGoogle",
         "parameters": [
           {
             "name": "Body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/TokenPayload"
             }

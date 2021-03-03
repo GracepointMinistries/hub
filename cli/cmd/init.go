@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/GracepointMinistries/hub/client"
-	"github.com/antihax/optional"
 	oidc "github.com/coreos/go-oidc"
 	"github.com/fatih/color"
 	"github.com/skratchdot/open-golang/open"
@@ -102,10 +101,8 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	c := client.NewAPIClient(client.NewConfiguration())
 	c.ChangeBasePath(host)
 
-	sessionToken, _, err := c.DefaultApi.ExchangeAdmin(r.Context(), &client.DefaultApiExchangeAdminOpts{
-		Body: optional.NewInterface(client.TokenPayload{
-			Token: token.AccessToken,
-		}),
+	sessionToken, _, err := c.AuthApi.ExchangeAdmin(r.Context(), client.TokenPayload{
+		Token: token.AccessToken,
 	})
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error:", err)

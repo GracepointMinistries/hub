@@ -99,6 +99,7 @@ func exchangeFacebookUserKey(c buffalo.Context, accessToken string) (string, err
 // swagger:parameters exchangeFacebook exchangeGoogle exchangeAdmin
 type TokenRequest struct {
 	// in: body
+	// required: true
 	Body TokenPayload
 }
 
@@ -114,7 +115,7 @@ type TokenPayload struct {
 	Token string `json:"token"`
 }
 
-// swagger:route POST /api/v1/exchange/admin exchangeAdmin
+// swagger:route POST /api/v1/exchange/admin auth exchangeAdmin
 // Exchanges a google authentication token with an admin api token.
 // responses:
 //   200: tokenResponse
@@ -137,7 +138,7 @@ func apiExchangeAdminToken(c buffalo.Context) error {
 	}))
 }
 
-// swagger:route POST /api/v1/exchange/google exchangeGoogle
+// swagger:route POST /api/v1/exchange/google auth exchangeGoogle
 // Exchanges a google authentication token with an api token.
 // responses:
 //   200: tokenResponse
@@ -160,7 +161,7 @@ func apiExchangeGoogleToken(c buffalo.Context) error {
 	}))
 }
 
-// swagger:route POST /api/v1/exchange/facebook exchangeFacebook
+// swagger:route POST /api/v1/exchange/facebook auth exchangeFacebook
 // Exchanges a facebook authentication token with an api token.
 // responses:
 //   200: tokenResponse
