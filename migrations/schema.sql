@@ -40,6 +40,7 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.admin_sessions (
     id integer NOT NULL,
+    ip character varying NOT NULL,
     email character varying NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );

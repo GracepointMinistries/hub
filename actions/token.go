@@ -29,8 +29,9 @@ func init() {
 }
 
 type tokenPayload struct {
-	Admin string `json:"admin,omitempty"`
-	ID    int    `json:"id,omitempty"`
+	Admin     string `json:"admin,omitempty"`
+	ID        int    `json:"id,omitempty"`
+	SessionID int    `json:"session_id"`
 }
 
 func generateToken(payload *tokenPayload) (string, error) {
@@ -45,15 +46,17 @@ func generateToken(payload *tokenPayload) (string, error) {
 	return encryption.FullSerialize(), nil
 }
 
-func generateAdminToken(admin string) (string, error) {
+func generateAdminToken(admin string, session int) (string, error) {
 	return generateToken(&tokenPayload{
-		Admin: admin,
+		Admin:     admin,
+		SessionID: session,
 	})
 }
 
-func generateUserToken(user int) (string, error) {
+func generateUserToken(user, session int) (string, error) {
 	return generateToken(&tokenPayload{
-		ID: user,
+		ID:        user,
+		SessionID: session,
 	})
 }
 
@@ -74,24 +77,24 @@ func parseToken(token string) (*tokenPayload, error) {
 	return payload, nil
 }
 
-func parseAdminToken(token string) (string, error) {
+func parseAdminToken(token string) (string, int, error) {
 	parsed, err := parseToken(token)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
-	if parsed.Admin == "" {
-		return "", errors.New("not an admin token")
+	if parsed.Admin == "" || parsed.SessionID == 0 {
+		return "", 0, errors.New("not an admin token")
 	}
-	return parsed.Admin, nil
+	return parsed.Admin, parsed.SessionID, nil
 }
 
-func parseUserToken(token string) (int, error) {
+func parseUserToken(token string) (int, int, error) {
 	parsed, err := parseToken(token)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
-	if parsed.ID <= 0 {
-		return 0, errors.New("not a user token")
+	if parsed.ID <= 0 || parsed.SessionID == 0 {
+		return 0, 0, errors.New("not a user token")
 	}
-	return parsed.ID, nil
+	return parsed.ID, parsed.SessionID, nil
 }

@@ -24,6 +24,7 @@ import (
 // AdminSession is an object representing the database table.
 type AdminSession struct {
 	ID        int       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	IP        string    `boil:"ip" json:"ip" toml:"ip" yaml:"ip"`
 	Email     string    `boil:"email" json:"email" toml:"email" yaml:"email"`
 	CreatedAt time.Time `boil:"created_at" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
 
@@ -33,10 +34,12 @@ type AdminSession struct {
 
 var AdminSessionColumns = struct {
 	ID        string
+	IP        string
 	Email     string
 	CreatedAt string
 }{
 	ID:        "id",
+	IP:        "ip",
 	Email:     "email",
 	CreatedAt: "created_at",
 }
@@ -112,10 +115,12 @@ func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
 
 var AdminSessionWhere = struct {
 	ID        whereHelperint
+	IP        whereHelperstring
 	Email     whereHelperstring
 	CreatedAt whereHelpertime_Time
 }{
 	ID:        whereHelperint{field: "\"admin_sessions\".\"id\""},
+	IP:        whereHelperstring{field: "\"admin_sessions\".\"ip\""},
 	Email:     whereHelperstring{field: "\"admin_sessions\".\"email\""},
 	CreatedAt: whereHelpertime_Time{field: "\"admin_sessions\".\"created_at\""},
 }
@@ -137,8 +142,8 @@ func (*adminSessionR) NewStruct() *adminSessionR {
 type adminSessionL struct{}
 
 var (
-	adminSessionAllColumns            = []string{"id", "email", "created_at"}
-	adminSessionColumnsWithoutDefault = []string{"email"}
+	adminSessionAllColumns            = []string{"id", "ip", "email", "created_at"}
+	adminSessionColumnsWithoutDefault = []string{"ip", "email"}
 	adminSessionColumnsWithDefault    = []string{"id", "created_at"}
 	adminSessionPrimaryKeyColumns     = []string{"id"}
 )

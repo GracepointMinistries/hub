@@ -427,7 +427,7 @@ func testAdminSessionsSelect(t *testing.T) {
 }
 
 var (
-	adminSessionDBTypes = map[string]string{`ID`: `integer`, `Email`: `character varying`, `CreatedAt`: `timestamp with time zone`}
+	adminSessionDBTypes = map[string]string{`ID`: `integer`, `IP`: `character varying`, `Email`: `character varying`, `CreatedAt`: `timestamp with time zone`}
 	_                   = bytes.MinRead
 )
 

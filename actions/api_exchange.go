@@ -53,7 +53,11 @@ func exchangeGoogleAdminKey(c buffalo.Context, accessToken string) (string, erro
 	}
 	for _, admin := range admins {
 		if admin == user.Email {
-			return generateAdminToken(user.Email)
+			session, err := modelext.CreateAdminSession(c, admin, userIP(c))
+			if err != nil {
+				return "", err
+			}
+			return generateAdminToken(user.Email, session.ID)
 		}
 	}
 	return "", errors.New("user is not an admin")
@@ -68,8 +72,11 @@ func exchangeGoogleUserKey(c buffalo.Context, accessToken string) (string, error
 	if err != nil {
 		return "", err
 	}
-	// this should really get stored in a session store
-	return generateUserToken(user.ID)
+	session, err := modelext.CreateUserSession(c, user, userIP(c))
+	if err != nil {
+		return "", err
+	}
+	return generateUserToken(user.ID, session.ID)
 }
 
 func exchangeFacebookUserKey(c buffalo.Context, accessToken string) (string, error) {
@@ -81,8 +88,11 @@ func exchangeFacebookUserKey(c buffalo.Context, accessToken string) (string, err
 	if err != nil {
 		return "", err
 	}
-	// this should really get stored in a session store
-	return generateUserToken(user.ID)
+	session, err := modelext.CreateUserSession(c, user, userIP(c))
+	if err != nil {
+		return "", err
+	}
+	return generateUserToken(user.ID, session.ID)
 }
 
 // TokenRequest is a request for a token exchange

@@ -8,6 +8,7 @@ CREATE TABLE sessions (
 
 CREATE TABLE admin_sessions (
   id serial PRIMARY KEY,
+  ip varchar NOT NULL,
   email varchar NOT NULL,
   created_at timestamptz NOT NULL DEFAULT NOW()
 );
