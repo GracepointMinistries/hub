@@ -32,25 +32,9 @@ func init() {
 	currentEnvironment.Load()
 }
 
-func getHost(server *buffalo.App) string {
-	return envy.Get("HOST", server.Host)
-}
-
 var app *buffalo.App
 
-// App is where all routes and middleware for buffalo
-// should be defined. This is the nerve center of your
-// application.
-//
-// Routing, middleware, groups, etc... are declared TOP -> DOWN.
-// This means if you add a middleware to `app` *after* declaring a
-// group, that group will NOT have that new middleware. The same
-// is true of resource declarations as well.
-//
-// It also means that routes are checked in the order they are declared.
-// `ServeFiles` is a CATCH-ALL route, so it should always be
-// placed last in the route declarations, as it will prevent routes
-// declared after it to never be called.
+// App initializes the buffalo application
 func App() *buffalo.App {
 	if app == nil {
 		app = buffalo.New(utils.SetSecureStore(buffalo.Options{
@@ -58,13 +42,13 @@ func App() *buffalo.App {
 			SessionName: "_hub_session",
 			PreWares:    []buffalo.PreWare{cors.Default().Handler},
 		}))
-
+		host := envy.Get("HOST", app.Host)
 		gothic.Store = app.SessionStore
-		adminProvider := google.New(os.Getenv("GOOGLE_OAUTH_KEY"), os.Getenv("GOOGLE_OAUTH_SECRET"), fmt.Sprintf(getHost(app)+"/admin/auth/callback"))
+		adminProvider := google.New(os.Getenv("GOOGLE_OAUTH_KEY"), os.Getenv("GOOGLE_OAUTH_SECRET"), fmt.Sprintf(host+"/admin/auth/callback"))
 		adminProvider.SetName("admin")
 		goth.UseProviders(
 			adminProvider,
-			google.New(os.Getenv("GOOGLE_OAUTH_KEY"), os.Getenv("GOOGLE_OAUTH_SECRET"), fmt.Sprintf(getHost(app)+"/auth/google/callback")),
+			google.New(os.Getenv("GOOGLE_OAUTH_KEY"), os.Getenv("GOOGLE_OAUTH_SECRET"), fmt.Sprintf(host+"/auth/google/callback")),
 		)
 
 		// Automatically redirect to SSL
@@ -74,13 +58,12 @@ func App() *buffalo.App {
 		}))
 		app.Use(paramlogger.ParameterLogger)
 		app.Use(csrf.New)
-
 		app.Use(popmw.Transaction(modelext.DB))
 		app.Use(addHelpers)
-		{
-			api.Register(app.Group("/api/v1"))
-		}
 
+		// Have API endpoints register themselves
+		api.Register(app.Group("/api/v1"))
+		// Register the rest of the "page" endpoints
 		{
 			mainPages := app.Group("")
 			mainPages.Use(middleware.RequireLoggedInUser)

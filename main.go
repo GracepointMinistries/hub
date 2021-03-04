@@ -10,8 +10,7 @@ import (
 //go:generate swagger generate spec -o swagger.json
 
 func main() {
-	app := actions.App()
-	if err := app.Serve(); err != nil {
+	if err := actions.App().Serve(); err != nil {
 		log.Fatal(err)
 	}
 }
