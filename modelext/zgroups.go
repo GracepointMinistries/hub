@@ -1,6 +1,10 @@
 package modelext
 
 import (
+	"database/sql"
+	"errors"
+	"log"
+
 	"github.com/GracepointMinistries/hub/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -13,7 +17,8 @@ func PaginatedZgroups(c buffalo.Context, queries ...qm.QueryMod) ([]*models.Zgro
 	zgroups, err := models.Zgroups(
 		clauses...,
 	).All(c, getTx(c))
-	if err != nil {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		log.Println(err)
 		return nil, nil, err
 	}
 	pagination.Cursor = -1

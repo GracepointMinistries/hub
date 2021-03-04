@@ -98,8 +98,8 @@ func exchangeFacebookUserKey(c buffalo.Context, accessToken string) (string, err
 // TokenRequest is a request for a token exchange
 // swagger:parameters exchangeFacebook exchangeGoogle exchangeAdmin
 type TokenRequest struct {
-	// in: body
-	// required: true
+	// in:body
+	// required:true
 	Body TokenPayload
 }
 

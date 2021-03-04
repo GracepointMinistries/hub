@@ -7,5 +7,6 @@ package client
 // Pagination holds query data for pagination
 type Pagination struct {
 	Cursor int64 `json:"cursor,omitempty"`
+	Filter string `json:"filter,omitempty"`
 	Limit int64 `json:"limit,omitempty"`
 }

@@ -10,13 +10,61 @@ name = "basic sample data"
 			email = "test.user@gmail.com"
 			created_at = 2019-07-17T10:00:00Z
 
+        [[scenario.table.row]]
+            id = 2
+            name = "Test User 2"
+			email = "test.user.2@gmail.com"
+			created_at = 2019-07-17T10:00:00Z
+
+        [[scenario.table.row]]
+            id = 3
+            name = "Test User 3"
+			email = "test.user.3@gmail.com"
+			created_at = 2019-07-17T10:00:00Z
+
+        [[scenario.table.row]]
+            id = 4
+            name = "Test User 4"
+			email = "test.user.4@gmail.com"
+			created_at = 2019-07-17T10:00:00Z
+
+        [[scenario.table.row]]
+            id = 5
+            name = "Test User 5"
+			email = "test.user.5@gmail.com"
+			created_at = 2019-07-17T10:00:00Z
+
     [[scenario.table]]
         name = "oauths"
 
         [[scenario.table.row]]
             id = 1
             provider = "google"
-            provider_id = "1234"
+            provider_id = "1"
+            created_at = 2019-07-17T10:00:00Z
+
+        [[scenario.table.row]]
+            id = 2
+            provider = "google"
+            provider_id = "2"
+            created_at = 2019-07-17T10:00:00Z
+
+        [[scenario.table.row]]
+            id = 3
+            provider = "google"
+            provider_id = "3"
+            created_at = 2019-07-17T10:00:00Z
+
+        [[scenario.table.row]]
+            id = 4
+            provider = "google"
+            provider_id = "4"
+            created_at = 2019-07-17T10:00:00Z
+
+        [[scenario.table.row]]
+            id = 5
+            provider = "google"
+            provider_id = "5"
             created_at = 2019-07-17T10:00:00Z
 
     [[scenario.table]]
@@ -25,6 +73,22 @@ name = "basic sample data"
         [[scenario.table.row]]
             user_id = 1
             oauth_id = 1
+
+        [[scenario.table.row]]
+            user_id = 2
+            oauth_id = 2
+
+        [[scenario.table.row]]
+            user_id = 3
+            oauth_id = 3
+
+        [[scenario.table.row]]
+            user_id = 4
+            oauth_id = 4
+
+        [[scenario.table.row]]
+            user_id = 5
+            oauth_id = 5
 
     [[scenario.table]]
         name = "zgroups"
@@ -37,9 +101,37 @@ name = "basic sample data"
             zoom_link = "https://google.com"
             created_at = 2019-07-17T10:00:00Z
 
+        [[scenario.table.row]]
+            id = 2
+            name = "Lotta Lattes"
+            archived = false
+            published = true
+            zoom_link = "https://google.com"
+            created_at = 2019-07-17T10:00:00Z
+
+        [[scenario.table.row]]
+            id = 3
+            name = "Poorly Named team"
+            archived = true
+            published = true
+            zoom_link = "https://google.com"
+            created_at = 2019-07-17T10:00:00Z
+
     [[scenario.table]]
         name = "zgroup_members"
 
         [[scenario.table.row]]
             zgroup_id = 1
             user_id = 1
+
+        [[scenario.table.row]]
+            zgroup_id = 1
+            user_id = 3
+
+        [[scenario.table.row]]
+            zgroup_id = 2
+            user_id = 4
+
+        [[scenario.table.row]]
+            zgroup_id = 3
+            user_id = 5

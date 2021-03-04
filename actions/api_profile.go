@@ -21,7 +21,7 @@ type ProfileResponsePayload struct {
 	Zgroup *models.Zgroup `json:"zgroup"`
 }
 
-// swagger:route GET /api/v1/profile profile
+// swagger:route GET /api/v1/profile user profile
 // Returns the users profile.
 // responses:
 //   200: profileResponse
@@ -31,7 +31,7 @@ type ProfileResponsePayload struct {
 //	 422: apiErrorResponse
 //	 500: apiErrorResponse
 func apiProfile(c buffalo.Context) error {
-	user, err := modelext.FindProfile(c, c.Session().Get("ID").(int))
+	user, err := modelext.FindProfile(c, c.Value("ID").(int))
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}

@@ -83,6 +83,7 @@ func requireAPIAdmin(next buffalo.Handler) buffalo.Handler {
 			return c.Error(http.StatusUnauthorized, errors.New("unauthorized"))
 		}
 		c.Set("Admin", admin)
+		c.Set("SessionID", sessionID)
 		return next(c)
 	}
 }
@@ -159,19 +160,33 @@ func logoutPage(c buffalo.Context) error {
 
 func requireAPIUser(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		id, sessionID, err := parseUserToken(getHeaderToken(c))
+		admin, id, sessionID, err := parseScopedToken(getHeaderToken(c))
 		if err != nil {
 			return c.Error(http.StatusUnauthorized, err)
 		}
-		valid, err := modelext.ValidateUserSession(c, id, sessionID)
-		if err != nil {
-			return c.Error(http.StatusInternalServerError, err)
-		}
-		if !valid {
-			return c.Error(http.StatusUnauthorized, errors.New("unauthorized"))
+		if admin != "" {
+			valid, err := modelext.ValidateAdminSession(c, admin, sessionID)
+			if err != nil {
+				return c.Error(http.StatusInternalServerError, err)
+			}
+			if !valid {
+				return c.Error(http.StatusUnauthorized, errors.New("unauthorized"))
+			}
+		} else {
+			valid, err := modelext.ValidateUserSession(c, id, sessionID)
+			if err != nil {
+				return c.Error(http.StatusInternalServerError, err)
+			}
+			if !valid {
+				return c.Error(http.StatusUnauthorized, errors.New("unauthorized"))
+			}
 		}
 
+		if admin != "" {
+			c.Set("Admin", admin)
+		}
 		c.Set("ID", id)
+		c.Set("SessionID", sessionID)
 		return next(c)
 	}
 }

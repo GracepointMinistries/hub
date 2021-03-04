@@ -1,10 +1,51 @@
 {
   "swagger": "2.0",
   "paths": {
+    "/api/v1/admin/impersonate/{id}": {
+      "post": {
+        "description": "Gets an authentication token for an admin that allows scoping as a user",
+        "tags": [
+          "admin"
+        ],
+        "operationId": "impersonate",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/tokenResponse"
+          },
+          "400": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/apiErrorResponse"
+          }
+        }
+      }
+    },
     "/api/v1/admin/users": {
       "get": {
+        "tags": [
+          "admin"
+        ],
         "summary": "Returns a paginated list of users.",
-        "operationId": "adminUsers",
+        "operationId": "users",
         "parameters": [
           {
             "type": "integer",
@@ -16,6 +57,11 @@
             "type": "integer",
             "format": "int64",
             "name": "cursor",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "filter",
             "in": "query"
           }
         ],
@@ -43,8 +89,11 @@
     },
     "/api/v1/admin/zgroups": {
       "get": {
+        "tags": [
+          "admin"
+        ],
         "summary": "Returns a paginated list of zGroups.",
-        "operationId": "adminZgroups",
+        "operationId": "zgroups",
         "parameters": [
           {
             "type": "integer",
@@ -56,6 +105,11 @@
             "type": "integer",
             "format": "int64",
             "name": "cursor",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "filter",
             "in": "query"
           }
         ],
@@ -83,8 +137,11 @@
     },
     "/api/v1/admin/zgroups/{id}": {
       "get": {
+        "tags": [
+          "admin"
+        ],
         "summary": "Returns a zGroup and its users.",
-        "operationId": "adminZgroup",
+        "operationId": "zgroup",
         "parameters": [
           {
             "type": "integer",
@@ -233,8 +290,40 @@
         }
       }
     },
+    "/api/v1/logout": {
+      "delete": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Log out of the user account.",
+        "operationId": "logout",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/tokenResponse"
+          },
+          "400": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/apiErrorResponse"
+          }
+        }
+      }
+    },
     "/api/v1/profile": {
       "get": {
+        "tags": [
+          "user"
+        ],
         "summary": "Returns the users profile.",
         "operationId": "profile",
         "responses": {
@@ -322,6 +411,9 @@
         "cursor": {
           "type": "integer",
           "format": "int64"
+        },
+        "filter": {
+          "type": "string"
         },
         "limit": {
           "type": "integer",

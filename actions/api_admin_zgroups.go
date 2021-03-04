@@ -22,7 +22,7 @@ type AdminZgroupsResponsePayload struct {
 	Pagination *modelext.Pagination `json:"pagination"`
 }
 
-// swagger:route GET /api/v1/admin/zgroups adminZgroups
+// swagger:route GET /api/v1/admin/zgroups admin zgroups
 // Returns a paginated list of zGroups.
 // responses:
 //   200: adminZgroupsResponse
@@ -57,13 +57,14 @@ type AdminZgroupResponsePayload struct {
 
 // AdminZgroupParameters documents the inbound parameters used
 // for the apiAdminZgroup endpoint
-// swagger:parameters adminZgroup
+// swagger:parameters zgroup
 type AdminZgroupParameters struct {
 	// in:path
+	// required:true
 	ID int `json:"id"`
 }
 
-// swagger:route GET /api/v1/admin/zgroups/{id} adminZgroup
+// swagger:route GET /api/v1/admin/zgroups/{id} admin zgroup
 // Returns a zGroup and its users.
 // responses:
 //   200: adminZgroupResponse

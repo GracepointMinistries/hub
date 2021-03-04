@@ -103,9 +103,11 @@ func App() *buffalo.App {
 			main := api.Group("")
 			main.Use(requireAPIUser)
 			main.GET("/profile", apiProfile)
+			main.GET("/logout", apiLogout)
 
 			admin := api.Group("/admin")
 			admin.Use(requireAPIAdmin)
+			admin.GET("/impersonate/{id}", apiAdminImpersonate)
 			admin.GET("/users", apiAdminUsers)
 			admin.GET("/zgroups", apiAdminZgroups)
 			admin.GET("/zgroups/{id}", apiAdminZgroup)

@@ -19,9 +19,11 @@ require (
 	github.com/gorilla/sessions v1.2.0
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
 	github.com/lib/pq v1.3.0
+	github.com/manifoldco/promptui v0.8.0
 	github.com/markbates/goth v1.59.0
 	github.com/markbates/grift v1.5.0
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pquerna/cachecontrol v0.0.0-20201205024021-ac21108117ac // indirect
 	github.com/rs/cors v1.7.0
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966

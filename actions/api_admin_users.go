@@ -22,7 +22,7 @@ type AdminUsersResponsePayload struct {
 	Pagination *modelext.Pagination `json:"pagination"`
 }
 
-// swagger:route GET /api/v1/admin/users adminUsers
+// swagger:route GET /api/v1/admin/users admin users
 // Returns a paginated list of users.
 // responses:
 //   200: adminUsersResponse

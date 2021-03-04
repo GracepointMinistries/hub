@@ -80,6 +80,14 @@ func generateUserToken(user, session int) (string, error) {
 	})
 }
 
+func generateScopedToken(admin string, user, session int) (string, error) {
+	return generateToken(&tokenPayload{
+		Admin:     admin,
+		ID:        user,
+		SessionID: session,
+	})
+}
+
 func parseToken(token string) (*tokenPayload, error) {
 	decodedToken, err := webBase64Decode(token)
 	if err != nil {
@@ -112,13 +120,13 @@ func parseAdminToken(token string) (string, int, error) {
 	return parsed.Admin, parsed.SessionID, nil
 }
 
-func parseUserToken(token string) (int, int, error) {
+func parseScopedToken(token string) (string, int, int, error) {
 	parsed, err := parseToken(token)
 	if err != nil {
-		return 0, 0, err
+		return "", 0, 0, err
 	}
 	if parsed.ID <= 0 || parsed.SessionID == 0 {
-		return 0, 0, errors.New("not a user token")
+		return "", 0, 0, errors.New("not a user token")
 	}
-	return parsed.ID, parsed.SessionID, nil
+	return parsed.Admin, parsed.ID, parsed.SessionID, nil
 }

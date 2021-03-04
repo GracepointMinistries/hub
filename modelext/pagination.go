@@ -10,18 +10,21 @@ import (
 const defaultLimit = 10
 
 // PaginationParameters wrap the inbound parameters
-// swagger:parameters adminUsers adminZgroups
+// swagger:parameters users zgroups
 type PaginationParameters struct {
-	// in: query
+	// in:query
 	Limit int `json:"limit"`
-	// in: query
+	// in:query
 	Cursor int `json:"cursor"`
+	// in:query
+	Filter string `json:"filter"`
 }
 
 // Pagination holds query data for pagination
 type Pagination struct {
-	Limit  int `json:"limit"`
-	Cursor int `json:"cursor"`
+	Limit  int    `json:"limit"`
+	Cursor int    `json:"cursor"`
+	Filter string `json:"filter"`
 }
 
 func getPagination(c buffalo.Context) (*Pagination, []qm.QueryMod) {
@@ -39,8 +42,14 @@ func getPagination(c buffalo.Context) (*Pagination, []qm.QueryMod) {
 			cursor = c
 		}
 	}
+	whereClause := qm.Where("id > ?", cursor)
+	filter := c.Param("filter")
+	if filter != "" {
+		whereClause = qm.Where("id > ? AND name LIKE '%' || ? || '%'", cursor, filter)
+	}
 	return &Pagination{
 		Limit:  limit,
 		Cursor: cursor,
-	}, []qm.QueryMod{qm.Where("id > ?", cursor), qm.Limit(limit), qm.OrderBy("id ASC")}
+		Filter: filter,
+	}, []qm.QueryMod{whereClause, qm.Limit(limit), qm.OrderBy("id ASC")}
 }
