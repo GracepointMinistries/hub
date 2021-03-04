@@ -9,4 +9,5 @@ func Register(parent *cobra.Command) {
 	parent.AddCommand(impersonateCmd)
 	parent.AddCommand(groupCmd)
 	parent.AddCommand(userCmd)
+	parent.AddCommand(syncCmd)
 }

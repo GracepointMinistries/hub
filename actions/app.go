@@ -11,6 +11,8 @@ import (
 	"github.com/GracepointMinistries/hub/actions/render"
 	"github.com/GracepointMinistries/hub/actions/utils"
 	"github.com/GracepointMinistries/hub/modelext"
+	"github.com/GracepointMinistries/hub/settings"
+	"github.com/GracepointMinistries/hub/sync"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo-pop/pop/popmw"
 	"github.com/gobuffalo/envy"
@@ -37,6 +39,15 @@ var app *buffalo.App
 // App initializes the buffalo application
 func App() *buffalo.App {
 	if app == nil {
+		if err := settings.Initialize(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error initializing application settings: %v", err)
+			os.Exit(1)
+		}
+		if err := sync.SetupClient(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error setting up google sheets client: %v", err)
+			os.Exit(1)
+		}
+
 		app = buffalo.New(utils.SetSecureStore(buffalo.Options{
 			Env:         string(currentEnvironment),
 			SessionName: "_hub_session",
@@ -57,7 +68,6 @@ func App() *buffalo.App {
 			SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
 		}))
 		app.Use(paramlogger.ParameterLogger)
-		app.Use(csrf.New)
 		app.Use(popmw.Transaction(modelext.DB))
 		app.Use(addHelpers)
 
@@ -65,17 +75,20 @@ func App() *buffalo.App {
 		api.Register(app.Group("/api/v1"))
 		// Register the rest of the "page" endpoints
 		{
+			pages := app.Group("")
+			pages.Use(csrf.New)
+
 			mainPages := app.Group("")
 			mainPages.Use(middleware.RequireLoggedInUser)
 			mainPages.GET("/", Profile)
 
-			authPages := app.Group("/auth")
+			authPages := pages.Group("/auth")
 			authPages.GET("/login", auth.Login)
 			authPages.GET("/logout", middleware.RequireLoggedInUser(auth.Logout))
 			authPages.GET("/{provider}", buffalo.WrapHandlerFunc(gothic.BeginAuthHandler))
 			authPages.GET("/{provider}/callback", auth.Callback)
 
-			adminPages := app.Group("/admin")
+			adminPages := pages.Group("/admin")
 			adminAuthPages := adminPages.Group("/auth")
 			adminAuthPages.GET("/login", admin.Login)
 			adminAuthPages.GET("/callback", admin.Callback)

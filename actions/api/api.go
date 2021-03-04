@@ -2,8 +2,10 @@ package api
 
 import (
 	"encoding/json"
+	"net/http"
 
 	"github.com/GracepointMinistries/hub/actions/api/admin"
+	"github.com/GracepointMinistries/hub/actions/api/admin/sync"
 	"github.com/GracepointMinistries/hub/actions/api/exchange"
 	"github.com/GracepointMinistries/hub/actions/api/middleware"
 	"github.com/gobuffalo/buffalo"
@@ -22,6 +24,10 @@ type ErrorPayload struct {
 }
 
 func errorHandler(status int, err error, c buffalo.Context) error {
+	if status == http.StatusInternalServerError {
+		// log all unexpected errors
+		c.Logger().Error(err)
+	}
 	response := c.Response()
 	response.WriteHeader(status)
 	return json.NewEncoder(response).Encode(&ErrorPayload{
@@ -44,7 +50,7 @@ func Register(app *buffalo.App) {
 	userAPI := app.Group("")
 	userAPI.Use(middleware.RequireUser)
 	userAPI.GET("/profile", Profile)
-	userAPI.GET("/logout", Logout)
+	userAPI.DELETE("/logout", Logout)
 
 	exchangeAPI := app.Group("/exchange")
 	exchangeAPI.POST("/admin", exchange.AdminToken)
@@ -53,9 +59,11 @@ func Register(app *buffalo.App) {
 
 	adminAPI := app.Group("/admin")
 	adminAPI.Use(middleware.RequireAdmin)
-	adminAPI.GET("/impersonate/{id}", admin.Impersonate)
 	adminAPI.GET("/users", admin.Users)
 	adminAPI.GET("/users/{id}", admin.User)
 	adminAPI.GET("/groups", admin.Groups)
 	adminAPI.GET("/groups/{id}", admin.Group)
+	adminAPI.GET("/settings", admin.CurrentSettings)
+	adminAPI.POST("/sync", sync.Initialize)
+	adminAPI.GET("/impersonate/{id}", admin.Impersonate)
 }

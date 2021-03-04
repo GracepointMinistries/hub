@@ -21,7 +21,7 @@ type ImpersonateParameters struct {
 
 // Impersonate allows an administrator to impersonate a user
 //
-// swagger:route POST /api/v1/admin/impersonate/{id} admin impersonate
+// swagger:route GET /api/v1/admin/impersonate/{id} admin impersonate
 // Gets an authentication token for an admin that allows scoping as a user
 // responses:
 //   200: tokenResponse

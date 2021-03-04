@@ -14,5 +14,7 @@ func TestUpsert(t *testing.T) {
 
 	t.Run("Sessions", testSessionsUpsert)
 
+	t.Run("Settings", testSettingsUpsert)
+
 	t.Run("Users", testUsersUpsert)
 }

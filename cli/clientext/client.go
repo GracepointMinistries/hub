@@ -8,7 +8,7 @@ import (
 // configuration file
 func NewClient() *client.APIClient {
 	return client.NewAPIClient(&client.Configuration{
-		BasePath: fileConfig.Host + "/",
+		BasePath: fileConfig.Host,
 		DefaultHeader: map[string]string{
 			"Authorization": "Bearer " + fileConfig.Token,
 		},

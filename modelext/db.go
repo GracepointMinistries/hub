@@ -22,6 +22,7 @@ func init() {
 	pop.Debug = env == "development"
 }
 
-func getTx(c buffalo.Context) *pop.Tx {
+// GetTx returns the database transaction associated with the context
+func GetTx(c buffalo.Context) *pop.Tx {
 	return c.Value("tx").(*pop.Connection).TX
 }

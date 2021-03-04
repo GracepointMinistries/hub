@@ -16,7 +16,7 @@ func PaginatedGroups(c buffalo.Context, queries ...qm.QueryMod) ([]*models.Group
 	clauses = append(clauses, queries...)
 	groups, err := models.Groups(
 		clauses...,
-	).All(c, getTx(c))
+	).All(c, GetTx(c))
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		log.Println(err)
 		return nil, nil, err
@@ -30,7 +30,7 @@ func PaginatedGroups(c buffalo.Context, queries ...qm.QueryMod) ([]*models.Group
 
 // FindGroup finds the group and eager-loads its users
 func FindGroup(c buffalo.Context, id int) (*models.Group, error) {
-	return models.Groups(models.GroupWhere.ID.EQ(id), qm.Load(models.GroupRels.Users)).One(c, getTx(c))
+	return models.Groups(models.GroupWhere.ID.EQ(id), qm.Load(models.GroupRels.Users)).One(c, GetTx(c))
 }
 
 // GroupForUser returns the associated group of a user
@@ -52,7 +52,7 @@ func GroupStatus(group *models.Group) string {
 
 // TotalUsersIn returns the count of users in a group
 func TotalUsersIn(c buffalo.Context, group *models.Group) (int64, error) {
-	return group.Users().Count(c, getTx(c))
+	return group.Users().Count(c, GetTx(c))
 }
 
 // HasZoomLink returns whether the group has a published zoom link

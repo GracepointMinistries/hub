@@ -19,7 +19,7 @@ type UserWithGroup struct {
 // EnsureUserWithOauth finds a user with the given provider id or creates them with the associated name
 // and email address if they don't exist associates
 func EnsureUserWithOauth(c buffalo.Context, provider, providerID, name, email string) (*models.User, error) {
-	tx := getTx(c)
+	tx := GetTx(c)
 	user, err := models.Users(
 		qm.InnerJoin("oauth_users ON oauth_users.user_id = users.id"),
 		qm.InnerJoin("oauths ON oauth_users.oauth_id = oauths.id"),
@@ -59,7 +59,7 @@ func PaginatedUsers(c buffalo.Context, queries ...qm.QueryMod) ([]*UserWithGroup
 	clauses = append(clauses, queries...)
 	users, err := models.Users(
 		clauses...,
-	).All(c, getTx(c))
+	).All(c, GetTx(c))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -82,7 +82,7 @@ func FindUser(c buffalo.Context, id int) (*UserWithGroup, error) {
 	user, err := models.Users(
 		models.UserWhere.ID.EQ(id),
 		qm.Load(models.UserRels.Groups, models.GroupWhere.Archived.EQ(false)),
-	).One(c, getTx(c))
+	).One(c, GetTx(c))
 	if err != nil || user == nil {
 		return nil, err
 	}

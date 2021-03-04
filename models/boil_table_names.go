@@ -10,6 +10,7 @@ var TableNames = struct {
 	OauthUsers    string
 	Oauths        string
 	Sessions      string
+	Settings      string
 	Users         string
 }{
 	AdminSessions: "admin_sessions",
@@ -18,5 +19,6 @@ var TableNames = struct {
 	OauthUsers:    "oauth_users",
 	Oauths:        "oauths",
 	Sessions:      "sessions",
+	Settings:      "settings",
 	Users:         "users",
 }

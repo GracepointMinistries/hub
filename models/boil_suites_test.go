@@ -16,6 +16,7 @@ func TestParent(t *testing.T) {
 	t.Run("Groups", testGroups)
 	t.Run("Oauths", testOauths)
 	t.Run("Sessions", testSessions)
+	t.Run("Settings", testSettings)
 	t.Run("Users", testUsers)
 }
 
@@ -24,6 +25,7 @@ func TestDelete(t *testing.T) {
 	t.Run("Groups", testGroupsDelete)
 	t.Run("Oauths", testOauthsDelete)
 	t.Run("Sessions", testSessionsDelete)
+	t.Run("Settings", testSettingsDelete)
 	t.Run("Users", testUsersDelete)
 }
 
@@ -32,6 +34,7 @@ func TestQueryDeleteAll(t *testing.T) {
 	t.Run("Groups", testGroupsQueryDeleteAll)
 	t.Run("Oauths", testOauthsQueryDeleteAll)
 	t.Run("Sessions", testSessionsQueryDeleteAll)
+	t.Run("Settings", testSettingsQueryDeleteAll)
 	t.Run("Users", testUsersQueryDeleteAll)
 }
 
@@ -40,6 +43,7 @@ func TestSliceDeleteAll(t *testing.T) {
 	t.Run("Groups", testGroupsSliceDeleteAll)
 	t.Run("Oauths", testOauthsSliceDeleteAll)
 	t.Run("Sessions", testSessionsSliceDeleteAll)
+	t.Run("Settings", testSettingsSliceDeleteAll)
 	t.Run("Users", testUsersSliceDeleteAll)
 }
 
@@ -48,6 +52,7 @@ func TestExists(t *testing.T) {
 	t.Run("Groups", testGroupsExists)
 	t.Run("Oauths", testOauthsExists)
 	t.Run("Sessions", testSessionsExists)
+	t.Run("Settings", testSettingsExists)
 	t.Run("Users", testUsersExists)
 }
 
@@ -56,6 +61,7 @@ func TestFind(t *testing.T) {
 	t.Run("Groups", testGroupsFind)
 	t.Run("Oauths", testOauthsFind)
 	t.Run("Sessions", testSessionsFind)
+	t.Run("Settings", testSettingsFind)
 	t.Run("Users", testUsersFind)
 }
 
@@ -64,6 +70,7 @@ func TestBind(t *testing.T) {
 	t.Run("Groups", testGroupsBind)
 	t.Run("Oauths", testOauthsBind)
 	t.Run("Sessions", testSessionsBind)
+	t.Run("Settings", testSettingsBind)
 	t.Run("Users", testUsersBind)
 }
 
@@ -72,6 +79,7 @@ func TestOne(t *testing.T) {
 	t.Run("Groups", testGroupsOne)
 	t.Run("Oauths", testOauthsOne)
 	t.Run("Sessions", testSessionsOne)
+	t.Run("Settings", testSettingsOne)
 	t.Run("Users", testUsersOne)
 }
 
@@ -80,6 +88,7 @@ func TestAll(t *testing.T) {
 	t.Run("Groups", testGroupsAll)
 	t.Run("Oauths", testOauthsAll)
 	t.Run("Sessions", testSessionsAll)
+	t.Run("Settings", testSettingsAll)
 	t.Run("Users", testUsersAll)
 }
 
@@ -88,6 +97,7 @@ func TestCount(t *testing.T) {
 	t.Run("Groups", testGroupsCount)
 	t.Run("Oauths", testOauthsCount)
 	t.Run("Sessions", testSessionsCount)
+	t.Run("Settings", testSettingsCount)
 	t.Run("Users", testUsersCount)
 }
 
@@ -100,6 +110,8 @@ func TestInsert(t *testing.T) {
 	t.Run("Oauths", testOauthsInsertWhitelist)
 	t.Run("Sessions", testSessionsInsert)
 	t.Run("Sessions", testSessionsInsertWhitelist)
+	t.Run("Settings", testSettingsInsert)
+	t.Run("Settings", testSettingsInsertWhitelist)
 	t.Run("Users", testUsersInsert)
 	t.Run("Users", testUsersInsertWhitelist)
 }
@@ -175,6 +187,7 @@ func TestReload(t *testing.T) {
 	t.Run("Groups", testGroupsReload)
 	t.Run("Oauths", testOauthsReload)
 	t.Run("Sessions", testSessionsReload)
+	t.Run("Settings", testSettingsReload)
 	t.Run("Users", testUsersReload)
 }
 
@@ -183,6 +196,7 @@ func TestReloadAll(t *testing.T) {
 	t.Run("Groups", testGroupsReloadAll)
 	t.Run("Oauths", testOauthsReloadAll)
 	t.Run("Sessions", testSessionsReloadAll)
+	t.Run("Settings", testSettingsReloadAll)
 	t.Run("Users", testUsersReloadAll)
 }
 
@@ -191,6 +205,7 @@ func TestSelect(t *testing.T) {
 	t.Run("Groups", testGroupsSelect)
 	t.Run("Oauths", testOauthsSelect)
 	t.Run("Sessions", testSessionsSelect)
+	t.Run("Settings", testSettingsSelect)
 	t.Run("Users", testUsersSelect)
 }
 
@@ -199,6 +214,7 @@ func TestUpdate(t *testing.T) {
 	t.Run("Groups", testGroupsUpdate)
 	t.Run("Oauths", testOauthsUpdate)
 	t.Run("Sessions", testSessionsUpdate)
+	t.Run("Settings", testSettingsUpdate)
 	t.Run("Users", testUsersUpdate)
 }
 
@@ -207,5 +223,6 @@ func TestSliceUpdateAll(t *testing.T) {
 	t.Run("Groups", testGroupsSliceUpdateAll)
 	t.Run("Oauths", testOauthsSliceUpdateAll)
 	t.Run("Sessions", testSessionsSliceUpdateAll)
+	t.Run("Settings", testSettingsSliceUpdateAll)
 	t.Run("Users", testUsersSliceUpdateAll)
 }
