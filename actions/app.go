@@ -14,7 +14,9 @@ import (
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/buffalo-pop/pop/popmw"
 	"github.com/gobuffalo/envy"
+	csrf "github.com/gobuffalo/mw-csrf"
 	forcessl "github.com/gobuffalo/mw-forcessl"
+	paramlogger "github.com/gobuffalo/mw-paramlogger"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
@@ -70,13 +72,8 @@ func App() *buffalo.App {
 			SSLRedirect:     currentEnvironment.IsDeployed(),
 			SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
 		}))
-
-		// Log request parameters (filters apply).
-		// app.Use(paramlogger.ParameterLogger)
-
-		// Protect against CSRF attacks. https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)
-		// Remove to disable this.
-		// app.Use(csrf.New)
+		app.Use(paramlogger.ParameterLogger)
+		app.Use(csrf.New)
 
 		app.Use(popmw.Transaction(modelext.DB))
 		app.Use(addHelpers)
