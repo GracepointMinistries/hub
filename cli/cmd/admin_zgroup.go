@@ -110,21 +110,15 @@ var zgroupCmd = &cobra.Command{
 		c := newClient()
 		if zgroup == 0 {
 			selected, err := selectZGroup(c, filter)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, "Error:", err)
-				os.Exit(1)
-			}
+			checkError(err)
 			if selected == nil {
-				fmt.Fprintln(os.Stderr, "No more results")
+				fmt.Fprintln(os.Stderr, bold("No more results"))
 				os.Exit(1)
 			}
 			zgroup = selected.Id
 		}
 		payload, _, err := c.AdminApi.Zgroup(context.Background(), zgroup)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Error:", err)
-			os.Exit(1)
-		}
+		checkError(err)
 		dumpZGroupUsers(payload.Zgroup, payload.Users)
 	},
 }

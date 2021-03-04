@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/GracepointMinistries/hub/modelext"
-	"github.com/GracepointMinistries/hub/models"
 	"github.com/gobuffalo/buffalo"
 )
 
@@ -17,8 +16,7 @@ type ProfileResponse struct {
 
 // ProfileResponsePayload contains user profile information
 type ProfileResponsePayload struct {
-	User   *models.User   `json:"user"`
-	Zgroup *models.Zgroup `json:"zgroup"`
+	User *modelext.UserWithZgroup `json:"user"`
 }
 
 // swagger:route GET /api/v1/profile user profile
@@ -31,12 +29,11 @@ type ProfileResponsePayload struct {
 //	 422: apiErrorResponse
 //	 500: apiErrorResponse
 func apiProfile(c buffalo.Context) error {
-	user, err := modelext.FindProfile(c, c.Value("ID").(int))
+	user, err := modelext.FindUser(c, c.Value("ID").(int))
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}
 	return c.Render(http.StatusOK, r.JSON(&ProfileResponsePayload{
-		User:   user,
-		Zgroup: modelext.ZgroupForUser(user),
+		User: user,
 	}))
 }

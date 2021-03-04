@@ -7,5 +7,5 @@ package client
 // AdminUsersResponsePayload contains the paginated users
 type AdminUsersResponsePayload struct {
 	Pagination *Pagination `json:"pagination,omitempty"`
-	Users []User `json:"users,omitempty"`
+	Users []UserWithZgroup `json:"users,omitempty"`
 }

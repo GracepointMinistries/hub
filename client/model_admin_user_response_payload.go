@@ -4,7 +4,7 @@
 
 package client
 
-// ProfileResponsePayload contains user profile information
-type ProfileResponsePayload struct {
+// AdminUserResponsePayload contains the queried user
+type AdminUserResponsePayload struct {
 	User *UserWithZgroup `json:"user,omitempty"`
 }

@@ -10,6 +10,12 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
+// UserWithZgroup is a User model with eagerly loaded Zgroup data
+type UserWithZgroup struct {
+	models.User
+	Zgroup *models.Zgroup `json:"zgroup,omitempty"`
+}
+
 // EnsureUserWithOauth finds a user with the given provider id or creates them with the associated name
 // and email address if they don't exist associates
 func EnsureUserWithOauth(c buffalo.Context, provider, providerID, name, email string) (*models.User, error) {
@@ -47,8 +53,9 @@ func EnsureUserWithOauth(c buffalo.Context, provider, providerID, name, email st
 }
 
 // PaginatedUsers adds pagination to a multi-user query
-func PaginatedUsers(c buffalo.Context, queries ...qm.QueryMod) ([]*models.User, *Pagination, error) {
+func PaginatedUsers(c buffalo.Context, queries ...qm.QueryMod) ([]*UserWithZgroup, *Pagination, error) {
 	pagination, clauses := getPagination(c)
+	clauses = append(clauses, qm.Load(models.UserRels.Zgroups, models.ZgroupWhere.Archived.EQ(false)))
 	clauses = append(clauses, queries...)
 	users, err := models.Users(
 		clauses...,
@@ -60,27 +67,34 @@ func PaginatedUsers(c buffalo.Context, queries ...qm.QueryMod) ([]*models.User, 
 	if len(users) > 0 {
 		pagination.Cursor = users[len(users)-1].ID
 	}
-	return users, pagination, nil
+	enrichedUsers := []*UserWithZgroup{}
+	for _, user := range users {
+		enrichedUsers = append(enrichedUsers, &UserWithZgroup{
+			User:   *user,
+			Zgroup: ZgroupForUser(user),
+		})
+	}
+	return enrichedUsers, pagination, nil
 }
 
-// FindProfile finds the profile for the given user
-func FindProfile(c buffalo.Context, id int) (*models.User, error) {
-	return models.Users(
+// FindUser finds the profile for the given user
+func FindUser(c buffalo.Context, id int) (*UserWithZgroup, error) {
+	user, err := models.Users(
 		models.UserWhere.ID.EQ(id),
 		qm.Load(models.UserRels.Zgroups, models.ZgroupWhere.Archived.EQ(false)),
 	).One(c, getTx(c))
-}
-
-// FindUser finds the given user
-func FindUser(c buffalo.Context, id int) (*models.User, error) {
-	return models.Users(
-		models.UserWhere.ID.EQ(id),
-	).One(c, getTx(c))
+	if err != nil || user == nil {
+		return nil, err
+	}
+	return &UserWithZgroup{
+		User:   *user,
+		Zgroup: ZgroupForUser(user),
+	}, nil
 }
 
 // UserStatus returns a human readable status for the user
-func UserStatus(user *models.User) string {
-	if user.Blocked {
+func UserStatus(blocked bool) string {
+	if blocked {
 		return "Blocked"
 	}
 	return "Active"

@@ -45,11 +45,16 @@ func getPagination(c buffalo.Context) (*Pagination, []qm.QueryMod) {
 	whereClause := qm.Where("id > ?", cursor)
 	filter := c.Param("filter")
 	if filter != "" {
-		whereClause = qm.Where("id > ? AND name LIKE '%' || ? || '%'", cursor, filter)
+		whereClause = qm.Where("id > ? AND name ILIKE '%' || ? || '%'", cursor, filter)
+	}
+	clauses := []qm.QueryMod{whereClause}
+	if limit >= 1 {
+		// if we have a positive limit, set it
+		clauses = append(clauses, qm.Limit(limit))
 	}
 	return &Pagination{
 		Limit:  limit,
 		Cursor: cursor,
 		Filter: filter,
-	}, []qm.QueryMod{whereClause, qm.Limit(limit), qm.OrderBy("id ASC")}
+	}, append(clauses, qm.OrderBy("id ASC"))
 }

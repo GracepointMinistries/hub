@@ -8,13 +8,11 @@ import (
 )
 
 func profilePage(c buffalo.Context) error {
-	user, err := modelext.FindProfile(c, c.Session().Get("ID").(int))
+	user, err := modelext.FindUser(c, c.Session().Get("ID").(int))
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}
-	zgroup := modelext.ZgroupForUser(user)
-
 	c.Set("user", user)
-	c.Set("zgroup", zgroup)
+	c.Set("zgroup", user.Zgroup)
 	return c.Render(http.StatusOK, r.HTML("user/profile.html"))
 }

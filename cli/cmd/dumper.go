@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"sort"
 	"strconv"
 	"time"
 
@@ -9,42 +10,52 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-func dumpUser(user *client.User, zgroup *client.Zgroup, force bool) {
+func dumpUsersWithZgroup(users ...client.UserWithZgroup) {
 	table := tablewriter.NewWriter(os.Stdout)
-	columns := []string{"ID", "Name", "Email", "Created"}
-	headerColors := []tablewriter.Colors{
-		tablewriter.Colors{tablewriter.Bold},
-		tablewriter.Colors{tablewriter.Bold},
-		tablewriter.Colors{tablewriter.Bold},
-		tablewriter.Colors{tablewriter.Bold},
+	table.SetHeader([]string{"ZGroup", "ID", "Name", "Email", "Created"})
+	data := make([][]string, len(users))
+	for i, user := range users {
+		values := []string{}
+		if user.Zgroup != nil {
+			name := user.Zgroup.Name
+			if user.Zgroup.Archived {
+				name += " " + warning("(archived)")
+			}
+			values = append(values, name)
+		} else {
+			values = append(values, "-")
+		}
+		values = append(
+			values,
+			strconv.Itoa(int(user.Id)),
+			user.Name,
+			user.Email,
+			user.CreatedAt.Format(time.RFC1123),
+		)
+		data[i] = values
 	}
-	columnColors := []tablewriter.Colors{
+	// sort by zgroup to keep all data together
+	sort.Slice(data, func(i, j int) bool {
+		return data[i][0] < data[j][0]
+	})
+
+	table.AppendBulk(data)
+	table.SetHeaderColor(
+		tablewriter.Colors{tablewriter.Bold},
+		tablewriter.Colors{tablewriter.Bold},
+		tablewriter.Colors{tablewriter.Bold},
+		tablewriter.Colors{tablewriter.Bold},
+		tablewriter.Colors{tablewriter.Bold},
+	)
+	table.SetColumnColor(
+		tablewriter.Colors{tablewriter.Bold},
 		tablewriter.Colors{},
 		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiCyanColor},
 		tablewriter.Colors{},
 		tablewriter.Colors{},
-	}
-	values := []string{
-		strconv.Itoa(int(user.Id)),
-		user.Name,
-		user.Email,
-		user.CreatedAt.Format(time.RFC1123),
-	}
-	if zgroup != nil {
-		columns = append(columns, "ZGroup")
-		values = append(values, zgroup.Name)
-		headerColors = append(headerColors, tablewriter.Colors{tablewriter.Bold})
-		columnColors = append(columnColors, tablewriter.Colors{})
-	} else if force {
-		columns = append(columns, "ZGroup")
-		values = append(values, "-")
-		headerColors = append(headerColors, tablewriter.Colors{tablewriter.Bold})
-		columnColors = append(columnColors, tablewriter.Colors{})
-	}
-	table.SetHeader(columns)
-	table.Append(values)
-	table.SetHeaderColor(headerColors...)
-	table.SetColumnColor(columnColors...)
+	)
+	table.SetAutoMergeCellsByColumnIndex([]int{0})
+	table.SetRowLine(true)
 	table.Render()
 }
 
@@ -85,5 +96,6 @@ func dumpZGroupUsers(zgroup *client.Zgroup, users []client.User) {
 			user.CreatedAt.Format(time.RFC1123),
 		})
 	}
+	table.SetRowLine(true)
 	table.Render()
 }

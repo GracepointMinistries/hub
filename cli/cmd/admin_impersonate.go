@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -18,10 +16,7 @@ var impersonateCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		client := newClient()
 		payload, _, err := client.AdminApi.Impersonate(context.Background(), user)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Error:", err)
-			os.Exit(1)
-		}
+		checkError(err)
 		fileConfig.Token = payload.Token
 		writeConfigFile()
 	},

@@ -46,10 +46,7 @@ var initCmd = &cobra.Command{
 func runInit() {
 	ctx := context.Background()
 	provider, err := oidc.NewProvider(ctx, "https://accounts.google.com")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-		os.Exit(1)
-	}
+	checkError(err)
 	authConfig = &oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
@@ -74,17 +71,13 @@ func runInit() {
 	mux.HandleFunc("/callback", callbackHandler)
 	server = &http.Server{Addr: ":8080", Handler: mux}
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-		os.Exit(1)
+		checkError(err)
 	}
 }
 
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	queryParts, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-		os.Exit(1)
-	}
+	checkError(err)
 
 	code := queryParts["code"][0]
 	token, err := authConfig.Exchange(
@@ -93,10 +86,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 		oauth2.SetAuthURLParam("code_verifier", codeChallenge),
 		oauth2.SetAuthURLParam("client_id", clientID),
 	)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-		os.Exit(1)
-	}
+	checkError(err)
 
 	c := client.NewAPIClient(client.NewConfiguration())
 	c.ChangeBasePath(host)
@@ -104,10 +94,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	sessionToken, _, err := c.AuthApi.ExchangeAdmin(r.Context(), client.TokenPayload{
 		Token: token.AccessToken,
 	})
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-		os.Exit(1)
-	}
+	checkError(err)
 	fileConfig.Host = host
 	fileConfig.Token = sessionToken.Token
 	writeConfigFile()

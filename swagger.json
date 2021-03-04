@@ -87,6 +87,44 @@
         }
       }
     },
+    "/api/v1/admin/users/{id}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Returns a user and its users.",
+        "operationId": "user",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/adminUserResponse"
+          },
+          "400": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "422": {
+            "$ref": "#/responses/apiErrorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/apiErrorResponse"
+          }
+        }
+      }
+    },
     "/api/v1/admin/zgroups": {
       "get": {
         "tags": [
@@ -359,6 +397,15 @@
         }
       }
     },
+    "AdminUserResponsePayload": {
+      "description": "AdminUserResponsePayload contains the queried user",
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/UserWithZgroup"
+        }
+      }
+    },
     "AdminUsersResponsePayload": {
       "description": "AdminUsersResponsePayload contains the paginated users",
       "type": "object",
@@ -369,7 +416,7 @@
         "users": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/User"
+            "$ref": "#/definitions/UserWithZgroup"
           }
         }
       }
@@ -426,10 +473,7 @@
       "type": "object",
       "properties": {
         "user": {
-          "$ref": "#/definitions/User"
-        },
-        "zgroup": {
-          "$ref": "#/definitions/Zgroup"
+          "$ref": "#/definitions/UserWithZgroup"
         }
       }
     },
@@ -469,6 +513,36 @@
         }
       }
     },
+    "UserWithZgroup": {
+      "description": "UserWithZgroup is a User model with eagerly loaded Zgroup data",
+      "type": "object",
+      "properties": {
+        "blocked": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "zgroup": {
+          "$ref": "#/definitions/Zgroup"
+        }
+      }
+    },
     "Zgroup": {
       "type": "object",
       "title": "Zgroup is an object representing the database table.",
@@ -501,6 +575,12 @@
     }
   },
   "responses": {
+    "adminUserResponse": {
+      "description": "AdminUserResponse returns the queried user",
+      "schema": {
+        "$ref": "#/definitions/AdminUserResponsePayload"
+      }
+    },
     "adminUsersResponse": {
       "description": "AdminUsersResponse returns the queried users",
       "schema": {

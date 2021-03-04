@@ -10,7 +10,7 @@ import (
 
 func checkUnauthorized(response *http.Response) {
 	if response != nil && response.StatusCode == http.StatusUnauthorized {
-		fmt.Fprintln(os.Stderr, "You are not authorized to perform that action")
+		fmt.Fprintln(os.Stderr, critical("You are not authorized to perform that action"))
 		os.Exit(1)
 	}
 }

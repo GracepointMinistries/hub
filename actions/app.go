@@ -109,6 +109,7 @@ func App() *buffalo.App {
 			admin.Use(requireAPIAdmin)
 			admin.GET("/impersonate/{id}", apiAdminImpersonate)
 			admin.GET("/users", apiAdminUsers)
+			admin.GET("/users/{id}", apiAdminUser)
 			admin.GET("/zgroups", apiAdminZgroups)
 			admin.GET("/zgroups/{id}", apiAdminZgroup)
 		}

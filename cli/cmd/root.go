@@ -26,22 +26,18 @@ var (
 	}
 )
 
+func checkError(err error) {
+	if err != nil {
+		fmt.Fprintln(os.Stderr, criticalf("Error: %v", err))
+		os.Exit(1)
+	}
+}
+
 func writeConfigFile() {
 	data, err := yaml.Marshal(&fileConfig)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-		os.Exit(1)
-	}
-	err = os.MkdirAll(path.Dir(cfgFile), 0700)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-		os.Exit(1)
-	}
-	err = ioutil.WriteFile(cfgFile, data, 0600)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-		os.Exit(1)
-	}
+	checkError(err)
+	checkError(os.MkdirAll(path.Dir(cfgFile), 0700))
+	checkError(ioutil.WriteFile(cfgFile, data, 0600))
 }
 
 // Execute executes the root command.
@@ -62,10 +58,7 @@ func initConfig() {
 	} else {
 		// Find home directory.
 		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Error:", err)
-			os.Exit(1)
-		}
+		checkError(err)
 
 		// Search config in home directory with name ".hub/cli.yaml" (without extension).
 		basePath := path.Join(home, ".hub")
@@ -76,9 +69,5 @@ func initConfig() {
 
 	viper.AutomaticEnv()
 	viper.ReadInConfig()
-
-	if err := viper.Unmarshal(&fileConfig); err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-		os.Exit(1)
-	}
+	checkError(viper.Unmarshal(&fileConfig))
 }
