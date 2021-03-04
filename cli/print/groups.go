@@ -10,10 +10,10 @@ import (
 )
 
 // DumpGroup dumps the group and the given users as a table
-func DumpGroup(group *client.Zgroup, users []client.User) {
+func DumpGroup(group *client.Group, users []client.User) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{
-		"Zgroup",
+		"Group",
 		"ID",
 		"Name",
 		"Email",

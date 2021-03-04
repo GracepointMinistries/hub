@@ -8,7 +8,7 @@ import (
 )
 
 // PageUsers pages through the users using the given filter
-func PageUsers(c *client.APIClient, filter string, handler func(bool, []client.UserWithZgroup) (*client.UserWithZgroup, error)) (*client.UserWithZgroup, error) {
+func PageUsers(c *client.APIClient, filter string, handler func(bool, []client.UserWithGroup) (*client.UserWithGroup, error)) (*client.UserWithGroup, error) {
 	payload, _, err := c.AdminApi.Users(context.Background(), &client.AdminApiUsersOpts{
 		Filter: optional.NewString(filter),
 	})
@@ -38,7 +38,7 @@ func PageUsers(c *client.APIClient, filter string, handler func(bool, []client.U
 }
 
 // AllUsers returns an unpaginated list of all users based on the given filter
-func AllUsers(c *client.APIClient, filter string) ([]client.UserWithZgroup, error) {
+func AllUsers(c *client.APIClient, filter string) ([]client.UserWithGroup, error) {
 	payload, _, err := c.AdminApi.Users(context.Background(), &client.AdminApiUsersOpts{
 		Filter: optional.NewString(filter),
 		Limit:  optional.NewInt64(-1),

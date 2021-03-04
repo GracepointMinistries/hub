@@ -10,7 +10,7 @@
                 Name
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                ZGroup
+                Group
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
@@ -36,9 +36,9 @@
                     </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <% let zgroup = user.Zgroup %>
-                      <%= if (!isNil(zgroup)) { %>
-                        <a href="/admin/zgroups/<%= zgroup.ID %>" class="text-indigo-600 hover:text-indigo-900"><%= zgroup.Name %></a>
+                      <% let group = user.Group %>
+                      <%= if (!isNil(group)) { %>
+                        <a href="/admin/groups/<%= group.ID %>" class="text-indigo-600 hover:text-indigo-900"><%= group.Name %></a>
                       <% } else { %>
                         &mdash;
                       <% } %>

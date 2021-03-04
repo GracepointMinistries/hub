@@ -11,15 +11,15 @@ import (
 )
 
 // DumpUsers prints users sorted by group
-func DumpUsers(users ...client.UserWithZgroup) {
+func DumpUsers(users ...client.UserWithGroup) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"ZGroup", "ID", "Name", "Email", "Created"})
+	table.SetHeader([]string{"Group", "ID", "Name", "Email", "Created"})
 	data := make([][]string, len(users))
 	for i, user := range users {
 		values := []string{}
-		if user.Zgroup != nil {
-			name := user.Zgroup.Name
-			if user.Zgroup.Archived {
+		if user.Group != nil {
+			name := user.Group.Name
+			if user.Group.Archived {
 				name += " " + Warning("(archived)")
 			}
 			values = append(values, name)

@@ -102,7 +102,7 @@ func (a *AuthApiService) ExchangeAdmin(ctx context.Context, body TokenPayload) (
 		}
 		
 		if localVarHttpResponse.StatusCode == 400 {
-			var v ApiErrorPayload
+			var v ErrorPayload
 			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
 				if err != nil {
 					newErr.error = err.Error()
@@ -113,7 +113,7 @@ func (a *AuthApiService) ExchangeAdmin(ctx context.Context, body TokenPayload) (
 		}
 		
 		if localVarHttpResponse.StatusCode == 401 {
-			var v ApiErrorPayload
+			var v ErrorPayload
 			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
 				if err != nil {
 					newErr.error = err.Error()
@@ -124,7 +124,7 @@ func (a *AuthApiService) ExchangeAdmin(ctx context.Context, body TokenPayload) (
 		}
 		
 		if localVarHttpResponse.StatusCode == 403 {
-			var v ApiErrorPayload
+			var v ErrorPayload
 			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
 				if err != nil {
 					newErr.error = err.Error()
@@ -135,7 +135,7 @@ func (a *AuthApiService) ExchangeAdmin(ctx context.Context, body TokenPayload) (
 		}
 		
 		if localVarHttpResponse.StatusCode == 422 {
-			var v ApiErrorPayload
+			var v ErrorPayload
 			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
 				if err != nil {
 					newErr.error = err.Error()
@@ -146,7 +146,7 @@ func (a *AuthApiService) ExchangeAdmin(ctx context.Context, body TokenPayload) (
 		}
 		
 		if localVarHttpResponse.StatusCode == 500 {
-			var v ApiErrorPayload
+			var v ErrorPayload
 			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
 				if err != nil {
 					newErr.error = err.Error()
@@ -243,61 +243,6 @@ func (a *AuthApiService) ExchangeFacebook(ctx context.Context, body TokenPayload
 				return localVarReturnValue, localVarHttpResponse, newErr
 		}
 		
-		if localVarHttpResponse.StatusCode == 400 {
-			var v ApiErrorPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		if localVarHttpResponse.StatusCode == 401 {
-			var v ApiErrorPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		if localVarHttpResponse.StatusCode == 403 {
-			var v ApiErrorPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		if localVarHttpResponse.StatusCode == 422 {
-			var v ApiErrorPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		if localVarHttpResponse.StatusCode == 500 {
-			var v ApiErrorPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
 		return localVarReturnValue, localVarHttpResponse, newErr
 	}
 
@@ -376,61 +321,6 @@ func (a *AuthApiService) ExchangeGoogle(ctx context.Context, body TokenPayload) 
 		
 		if localVarHttpResponse.StatusCode == 200 {
 			var v TokenPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		if localVarHttpResponse.StatusCode == 400 {
-			var v ApiErrorPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		if localVarHttpResponse.StatusCode == 401 {
-			var v ApiErrorPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		if localVarHttpResponse.StatusCode == 403 {
-			var v ApiErrorPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		if localVarHttpResponse.StatusCode == 422 {
-			var v ApiErrorPayload
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
-		}
-		
-		if localVarHttpResponse.StatusCode == 500 {
-			var v ApiErrorPayload
 			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
 				if err != nil {
 					newErr.error = err.Error()

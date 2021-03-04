@@ -13,95 +13,95 @@ import "testing"
 // Separating the tests thusly grants avoidance of Postgres deadlocks.
 func TestParent(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessions)
+	t.Run("Groups", testGroups)
 	t.Run("Oauths", testOauths)
 	t.Run("Sessions", testSessions)
 	t.Run("Users", testUsers)
-	t.Run("Zgroups", testZgroups)
 }
 
 func TestDelete(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsDelete)
+	t.Run("Groups", testGroupsDelete)
 	t.Run("Oauths", testOauthsDelete)
 	t.Run("Sessions", testSessionsDelete)
 	t.Run("Users", testUsersDelete)
-	t.Run("Zgroups", testZgroupsDelete)
 }
 
 func TestQueryDeleteAll(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsQueryDeleteAll)
+	t.Run("Groups", testGroupsQueryDeleteAll)
 	t.Run("Oauths", testOauthsQueryDeleteAll)
 	t.Run("Sessions", testSessionsQueryDeleteAll)
 	t.Run("Users", testUsersQueryDeleteAll)
-	t.Run("Zgroups", testZgroupsQueryDeleteAll)
 }
 
 func TestSliceDeleteAll(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsSliceDeleteAll)
+	t.Run("Groups", testGroupsSliceDeleteAll)
 	t.Run("Oauths", testOauthsSliceDeleteAll)
 	t.Run("Sessions", testSessionsSliceDeleteAll)
 	t.Run("Users", testUsersSliceDeleteAll)
-	t.Run("Zgroups", testZgroupsSliceDeleteAll)
 }
 
 func TestExists(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsExists)
+	t.Run("Groups", testGroupsExists)
 	t.Run("Oauths", testOauthsExists)
 	t.Run("Sessions", testSessionsExists)
 	t.Run("Users", testUsersExists)
-	t.Run("Zgroups", testZgroupsExists)
 }
 
 func TestFind(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsFind)
+	t.Run("Groups", testGroupsFind)
 	t.Run("Oauths", testOauthsFind)
 	t.Run("Sessions", testSessionsFind)
 	t.Run("Users", testUsersFind)
-	t.Run("Zgroups", testZgroupsFind)
 }
 
 func TestBind(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsBind)
+	t.Run("Groups", testGroupsBind)
 	t.Run("Oauths", testOauthsBind)
 	t.Run("Sessions", testSessionsBind)
 	t.Run("Users", testUsersBind)
-	t.Run("Zgroups", testZgroupsBind)
 }
 
 func TestOne(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsOne)
+	t.Run("Groups", testGroupsOne)
 	t.Run("Oauths", testOauthsOne)
 	t.Run("Sessions", testSessionsOne)
 	t.Run("Users", testUsersOne)
-	t.Run("Zgroups", testZgroupsOne)
 }
 
 func TestAll(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsAll)
+	t.Run("Groups", testGroupsAll)
 	t.Run("Oauths", testOauthsAll)
 	t.Run("Sessions", testSessionsAll)
 	t.Run("Users", testUsersAll)
-	t.Run("Zgroups", testZgroupsAll)
 }
 
 func TestCount(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsCount)
+	t.Run("Groups", testGroupsCount)
 	t.Run("Oauths", testOauthsCount)
 	t.Run("Sessions", testSessionsCount)
 	t.Run("Users", testUsersCount)
-	t.Run("Zgroups", testZgroupsCount)
 }
 
 func TestInsert(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsInsert)
 	t.Run("AdminSessions", testAdminSessionsInsertWhitelist)
+	t.Run("Groups", testGroupsInsert)
+	t.Run("Groups", testGroupsInsertWhitelist)
 	t.Run("Oauths", testOauthsInsert)
 	t.Run("Oauths", testOauthsInsertWhitelist)
 	t.Run("Sessions", testSessionsInsert)
 	t.Run("Sessions", testSessionsInsertWhitelist)
 	t.Run("Users", testUsersInsert)
 	t.Run("Users", testUsersInsertWhitelist)
-	t.Run("Zgroups", testZgroupsInsert)
-	t.Run("Zgroups", testZgroupsInsertWhitelist)
 }
 
 // TestToOne tests cannot be run in parallel
@@ -117,11 +117,11 @@ func TestOneToOne(t *testing.T) {}
 // TestToMany tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToMany(t *testing.T) {
+	t.Run("GroupToUsers", testGroupToManyUsers)
 	t.Run("OauthToUsers", testOauthToManyUsers)
+	t.Run("UserToGroups", testUserToManyGroups)
 	t.Run("UserToOauths", testUserToManyOauths)
 	t.Run("UserToSessions", testUserToManySessions)
-	t.Run("UserToZgroups", testUserToManyZgroups)
-	t.Run("ZgroupToUsers", testZgroupToManyUsers)
 }
 
 // TestToOneSet tests cannot be run in parallel
@@ -145,67 +145,67 @@ func TestOneToOneRemove(t *testing.T) {}
 // TestToManyAdd tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManyAdd(t *testing.T) {
+	t.Run("GroupToUsers", testGroupToManyAddOpUsers)
 	t.Run("OauthToUsers", testOauthToManyAddOpUsers)
+	t.Run("UserToGroups", testUserToManyAddOpGroups)
 	t.Run("UserToOauths", testUserToManyAddOpOauths)
 	t.Run("UserToSessions", testUserToManyAddOpSessions)
-	t.Run("UserToZgroups", testUserToManyAddOpZgroups)
-	t.Run("ZgroupToUsers", testZgroupToManyAddOpUsers)
 }
 
 // TestToManySet tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManySet(t *testing.T) {
+	t.Run("GroupToUsers", testGroupToManySetOpUsers)
 	t.Run("OauthToUsers", testOauthToManySetOpUsers)
+	t.Run("UserToGroups", testUserToManySetOpGroups)
 	t.Run("UserToOauths", testUserToManySetOpOauths)
-	t.Run("UserToZgroups", testUserToManySetOpZgroups)
-	t.Run("ZgroupToUsers", testZgroupToManySetOpUsers)
 }
 
 // TestToManyRemove tests cannot be run in parallel
 // or deadlocks can occur.
 func TestToManyRemove(t *testing.T) {
+	t.Run("GroupToUsers", testGroupToManyRemoveOpUsers)
 	t.Run("OauthToUsers", testOauthToManyRemoveOpUsers)
+	t.Run("UserToGroups", testUserToManyRemoveOpGroups)
 	t.Run("UserToOauths", testUserToManyRemoveOpOauths)
-	t.Run("UserToZgroups", testUserToManyRemoveOpZgroups)
-	t.Run("ZgroupToUsers", testZgroupToManyRemoveOpUsers)
 }
 
 func TestReload(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsReload)
+	t.Run("Groups", testGroupsReload)
 	t.Run("Oauths", testOauthsReload)
 	t.Run("Sessions", testSessionsReload)
 	t.Run("Users", testUsersReload)
-	t.Run("Zgroups", testZgroupsReload)
 }
 
 func TestReloadAll(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsReloadAll)
+	t.Run("Groups", testGroupsReloadAll)
 	t.Run("Oauths", testOauthsReloadAll)
 	t.Run("Sessions", testSessionsReloadAll)
 	t.Run("Users", testUsersReloadAll)
-	t.Run("Zgroups", testZgroupsReloadAll)
 }
 
 func TestSelect(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsSelect)
+	t.Run("Groups", testGroupsSelect)
 	t.Run("Oauths", testOauthsSelect)
 	t.Run("Sessions", testSessionsSelect)
 	t.Run("Users", testUsersSelect)
-	t.Run("Zgroups", testZgroupsSelect)
 }
 
 func TestUpdate(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsUpdate)
+	t.Run("Groups", testGroupsUpdate)
 	t.Run("Oauths", testOauthsUpdate)
 	t.Run("Sessions", testSessionsUpdate)
 	t.Run("Users", testUsersUpdate)
-	t.Run("Zgroups", testZgroupsUpdate)
 }
 
 func TestSliceUpdateAll(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsSliceUpdateAll)
+	t.Run("Groups", testGroupsSliceUpdateAll)
 	t.Run("Oauths", testOauthsSliceUpdateAll)
 	t.Run("Sessions", testSessionsSliceUpdateAll)
 	t.Run("Users", testUsersSliceUpdateAll)
-	t.Run("Zgroups", testZgroupsSliceUpdateAll)
 }

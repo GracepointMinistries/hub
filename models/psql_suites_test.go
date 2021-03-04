@@ -8,11 +8,11 @@ import "testing"
 func TestUpsert(t *testing.T) {
 	t.Run("AdminSessions", testAdminSessionsUpsert)
 
+	t.Run("Groups", testGroupsUpsert)
+
 	t.Run("Oauths", testOauthsUpsert)
 
 	t.Run("Sessions", testSessionsUpsert)
 
 	t.Run("Users", testUsersUpsert)
-
-	t.Run("Zgroups", testZgroupsUpsert)
 }

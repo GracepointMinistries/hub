@@ -6,5 +6,5 @@ package client
 
 // ProfileResponsePayload contains user profile information
 type ProfileResponsePayload struct {
-	User *UserWithZgroup `json:"user,omitempty"`
+	User *UserWithGroup `json:"user,omitempty"`
 }

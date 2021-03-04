@@ -1,9 +1,9 @@
 Name: <%= user.Name %><br/>
 Email: <%= user.Email %><br/>
-<%= if (!isNil(zgroup)) { %>
-  <%= if (hasZoomLink(zgroup)) { %>
-    ZGroup: <a href="<%= zgroup.ZoomLink %>" target="_blank"><%= zgroup.Name %></a><br/>
+<%= if (!isNil(group)) { %>
+  <%= if (hasZoomLink(group)) { %>
+    Group: <a href="<%= group.ZoomLink %>" target="_blank"><%= group.Name %></a><br/>
   <% } else { %>
-    ZGroup: <%= zgroup.Name %><br/>
+    Group: <%= group.Name %><br/>
   <% } %>
 <% } %>

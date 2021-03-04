@@ -14,8 +14,8 @@ var (
 )
 
 // GroupSelectOptions gives a list of options to use in selecting a group
-func GroupSelectOptions(final bool, zgroups []client.Zgroup) (map[int]client.Zgroup, []string) {
-	lookup := make(map[int]client.Zgroup, len(zgroups))
+func GroupSelectOptions(final bool, zgroups []client.Group) (map[int]client.Group, []string) {
+	lookup := make(map[int]client.Group, len(zgroups))
 	options := make([]string, len(zgroups)+1)
 	for i, group := range zgroups {
 		name := fmt.Sprintf("%s %s", Bold(group.Name), Noticef("[ID: %d]", group.Id))
@@ -34,8 +34,8 @@ func GroupSelectOptions(final bool, zgroups []client.Zgroup) (map[int]client.Zgr
 }
 
 // UserSelectOptions gives a list of options to use in selecting a user
-func UserSelectOptions(final bool, users []client.UserWithZgroup) (map[int]client.UserWithZgroup, []string) {
-	lookup := make(map[int]client.UserWithZgroup, len(users))
+func UserSelectOptions(final bool, users []client.UserWithGroup) (map[int]client.UserWithGroup, []string) {
+	lookup := make(map[int]client.UserWithGroup, len(users))
 	options := make([]string, len(users)+1)
 	for i, user := range users {
 		name := fmt.Sprintf("%s %s", Bold(user.Name), Noticef("[ID: %d]", user.Id))

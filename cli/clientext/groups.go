@@ -8,8 +8,8 @@ import (
 )
 
 // PageGroups pages through the groups using the given filter
-func PageGroups(c *client.APIClient, filter string, handler func(bool, []client.Zgroup) (*client.Zgroup, error)) (*client.Zgroup, error) {
-	payload, _, err := c.AdminApi.Zgroups(context.Background(), &client.AdminApiZgroupsOpts{
+func PageGroups(c *client.APIClient, filter string, handler func(bool, []client.Group) (*client.Group, error)) (*client.Group, error) {
+	payload, _, err := c.AdminApi.Groups(context.Background(), &client.AdminApiGroupsOpts{
 		Filter: optional.NewString(filter),
 	})
 	if err != nil {
@@ -19,14 +19,14 @@ func PageGroups(c *client.APIClient, filter string, handler func(bool, []client.
 		if payload.Pagination.Cursor == -1 {
 			return nil, nil
 		}
-		found, err := handler(int(payload.Pagination.Limit) > len(payload.Zgroups), payload.Zgroups)
+		found, err := handler(int(payload.Pagination.Limit) > len(payload.Groups), payload.Groups)
 		if err != nil {
 			return nil, err
 		}
 		if found != nil {
 			return found, nil
 		}
-		payload, _, err = c.AdminApi.Zgroups(context.Background(), &client.AdminApiZgroupsOpts{
+		payload, _, err = c.AdminApi.Groups(context.Background(), &client.AdminApiGroupsOpts{
 			Cursor: optional.NewInt64(payload.Pagination.Cursor),
 			Limit:  optional.NewInt64(payload.Pagination.Limit),
 			Filter: optional.NewString(payload.Pagination.Filter),

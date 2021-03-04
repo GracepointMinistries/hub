@@ -1,6 +1,92 @@
 {
   "swagger": "2.0",
   "paths": {
+    "/api/v1/admin/groups": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Returns a paginated list of groups.",
+        "operationId": "groups",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/adminGroupsResponse"
+          },
+          "400": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "422": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/errorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/groups/{id}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Returns a group and its users.",
+        "operationId": "group",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/adminGroupResponse"
+          },
+          "400": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "422": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/errorResponse"
+          }
+        }
+      }
+    },
     "/api/v1/admin/impersonate/{id}": {
       "post": {
         "description": "Gets an authentication token for an admin that allows scoping as a user",
@@ -22,19 +108,19 @@
             "$ref": "#/responses/tokenResponse"
           },
           "400": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "401": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "403": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "422": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "500": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           }
         }
       }
@@ -70,19 +156,19 @@
             "$ref": "#/responses/adminUsersResponse"
           },
           "400": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "401": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "403": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "422": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "500": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           }
         }
       }
@@ -92,7 +178,7 @@
         "tags": [
           "admin"
         ],
-        "summary": "Returns a user and its users.",
+        "summary": "Returns a user and its group.",
         "operationId": "user",
         "parameters": [
           {
@@ -108,105 +194,19 @@
             "$ref": "#/responses/adminUserResponse"
           },
           "400": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "401": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "403": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "422": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "500": {
-            "$ref": "#/responses/apiErrorResponse"
-          }
-        }
-      }
-    },
-    "/api/v1/admin/zgroups": {
-      "get": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Returns a paginated list of zGroups.",
-        "operationId": "zgroups",
-        "parameters": [
-          {
-            "type": "integer",
-            "format": "int64",
-            "name": "limit",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "format": "int64",
-            "name": "cursor",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "filter",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/responses/adminZgroupsResponse"
-          },
-          "400": {
-            "$ref": "#/responses/apiErrorResponse"
-          },
-          "401": {
-            "$ref": "#/responses/apiErrorResponse"
-          },
-          "403": {
-            "$ref": "#/responses/apiErrorResponse"
-          },
-          "422": {
-            "$ref": "#/responses/apiErrorResponse"
-          },
-          "500": {
-            "$ref": "#/responses/apiErrorResponse"
-          }
-        }
-      }
-    },
-    "/api/v1/admin/zgroups/{id}": {
-      "get": {
-        "tags": [
-          "admin"
-        ],
-        "summary": "Returns a zGroup and its users.",
-        "operationId": "zgroup",
-        "parameters": [
-          {
-            "type": "integer",
-            "format": "int64",
-            "name": "id",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/responses/adminZgroupResponse"
-          },
-          "400": {
-            "$ref": "#/responses/apiErrorResponse"
-          },
-          "401": {
-            "$ref": "#/responses/apiErrorResponse"
-          },
-          "403": {
-            "$ref": "#/responses/apiErrorResponse"
-          },
-          "422": {
-            "$ref": "#/responses/apiErrorResponse"
-          },
-          "500": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           }
         }
       }
@@ -272,19 +272,19 @@
             "$ref": "#/responses/tokenResponse"
           },
           "400": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "401": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "403": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "422": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "500": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           }
         }
       }
@@ -311,19 +311,19 @@
             "$ref": "#/responses/tokenResponse"
           },
           "400": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "401": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "403": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "422": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "500": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           }
         }
       }
@@ -340,19 +340,19 @@
             "$ref": "#/responses/tokenResponse"
           },
           "400": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "401": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "403": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "422": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "500": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           }
         }
       }
@@ -369,27 +369,27 @@
             "$ref": "#/responses/profileResponse"
           },
           "400": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "401": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "403": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "422": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           },
           "500": {
-            "$ref": "#/responses/apiErrorResponse"
+            "$ref": "#/responses/errorResponse"
           }
         }
       }
     }
   },
   "definitions": {
-    "APIErrorPayload": {
-      "description": "APIErrorPayload wraps errors in a well-defined api payload",
+    "ErrorPayload": {
+      "description": "ErrorPayload wraps errors in a well-defined api payload",
       "type": "object",
       "properties": {
         "error": {
@@ -397,57 +397,63 @@
         }
       }
     },
-    "AdminUserResponsePayload": {
-      "description": "AdminUserResponsePayload contains the queried user",
+    "Group": {
       "type": "object",
+      "title": "Group is an object representing the database table.",
       "properties": {
-        "user": {
-          "$ref": "#/definitions/UserWithZgroup"
-        }
-      }
-    },
-    "AdminUsersResponsePayload": {
-      "description": "AdminUsersResponsePayload contains the paginated users",
-      "type": "object",
-      "properties": {
-        "pagination": {
-          "$ref": "#/definitions/Pagination"
+        "archived": {
+          "type": "boolean"
         },
-        "users": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/UserWithZgroup"
-          }
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "published": {
+          "type": "boolean"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "zoomLink": {
+          "type": "string"
         }
       }
     },
-    "AdminZgroupResponsePayload": {
-      "description": "AdminZgroupResponsePayload contains the queried zgroup and its users",
+    "GroupResponsePayload": {
+      "description": "GroupResponsePayload contains the queried group and its users",
       "type": "object",
       "properties": {
+        "group": {
+          "$ref": "#/definitions/Group"
+        },
         "users": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/User"
           }
-        },
-        "zgroup": {
-          "$ref": "#/definitions/Zgroup"
         }
       }
     },
-    "AdminZgroupsResponsePayload": {
-      "description": "AdminZgroupsResponsePayload contains paginated zgroups",
+    "GroupsResponsePayload": {
+      "description": "GroupsResponsePayload contains paginated groups",
       "type": "object",
       "properties": {
-        "pagination": {
-          "$ref": "#/definitions/Pagination"
-        },
-        "zgroups": {
+        "groups": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Zgroup"
+            "$ref": "#/definitions/Group"
           }
+        },
+        "pagination": {
+          "$ref": "#/definitions/Pagination"
         }
       }
     },
@@ -473,7 +479,7 @@
       "type": "object",
       "properties": {
         "user": {
-          "$ref": "#/definitions/UserWithZgroup"
+          "$ref": "#/definitions/UserWithGroup"
         }
       }
     },
@@ -513,8 +519,17 @@
         }
       }
     },
-    "UserWithZgroup": {
-      "description": "UserWithZgroup is a User model with eagerly loaded Zgroup data",
+    "UserResponsePayload": {
+      "description": "UserResponsePayload contains the queried user",
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/UserWithGroup"
+        }
+      }
+    },
+    "UserWithGroup": {
+      "description": "UserWithGroup is a User model with eagerly loaded group data",
       "type": "object",
       "properties": {
         "blocked": {
@@ -527,6 +542,9 @@
         "email": {
           "type": "string"
         },
+        "group": {
+          "$ref": "#/definitions/Group"
+        },
         "id": {
           "type": "integer",
           "format": "int64"
@@ -537,72 +555,54 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
-        },
-        "zgroup": {
-          "$ref": "#/definitions/Zgroup"
         }
       }
     },
-    "Zgroup": {
+    "UsersResponsePayload": {
+      "description": "UsersResponsePayload contains the paginated users",
       "type": "object",
-      "title": "Zgroup is an object representing the database table.",
       "properties": {
-        "archived": {
-          "type": "boolean"
+        "pagination": {
+          "$ref": "#/definitions/Pagination"
         },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "id": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "type": "string"
-        },
-        "published": {
-          "type": "boolean"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "zoomLink": {
-          "type": "string"
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UserWithGroup"
+          }
         }
       }
     }
   },
   "responses": {
-    "adminUserResponse": {
-      "description": "AdminUserResponse returns the queried user",
+    "adminGroupResponse": {
+      "description": "GroupResponse returns the queried zgroups",
       "schema": {
-        "$ref": "#/definitions/AdminUserResponsePayload"
+        "$ref": "#/definitions/GroupResponsePayload"
+      }
+    },
+    "adminGroupsResponse": {
+      "description": "GroupsResponse returns the queried groups",
+      "schema": {
+        "$ref": "#/definitions/GroupsResponsePayload"
+      }
+    },
+    "adminUserResponse": {
+      "description": "UserResponse returns the queried user",
+      "schema": {
+        "$ref": "#/definitions/UserResponsePayload"
       }
     },
     "adminUsersResponse": {
-      "description": "AdminUsersResponse returns the queried users",
+      "description": "UsersResponse returns the queried users",
       "schema": {
-        "$ref": "#/definitions/AdminUsersResponsePayload"
-      }
-    },
-    "adminZgroupResponse": {
-      "description": "AdminZgroupResponse returns the queried zgroups",
-      "schema": {
-        "$ref": "#/definitions/AdminZgroupResponsePayload"
-      }
-    },
-    "adminZgroupsResponse": {
-      "description": "AdminZgroupsResponse returns the queried zgroups",
-      "schema": {
-        "$ref": "#/definitions/AdminZgroupsResponsePayload"
+        "$ref": "#/definitions/UsersResponsePayload"
       }
     },
     "apiErrorResponse": {
-      "description": "APIErrorResponse returns an api error",
+      "description": "ErrorResponse returns an api error",
       "schema": {
-        "$ref": "#/definitions/APIErrorPayload"
+        "$ref": "#/definitions/ErrorPayload"
       }
     },
     "profileResponse": {

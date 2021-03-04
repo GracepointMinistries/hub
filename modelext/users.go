@@ -10,10 +10,10 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
-// UserWithZgroup is a User model with eagerly loaded Zgroup data
-type UserWithZgroup struct {
+// UserWithGroup is a User model with eagerly loaded group data
+type UserWithGroup struct {
 	models.User
-	Zgroup *models.Zgroup `json:"zgroup,omitempty"`
+	Group *models.Group `json:"group,omitempty"`
 }
 
 // EnsureUserWithOauth finds a user with the given provider id or creates them with the associated name
@@ -53,9 +53,9 @@ func EnsureUserWithOauth(c buffalo.Context, provider, providerID, name, email st
 }
 
 // PaginatedUsers adds pagination to a multi-user query
-func PaginatedUsers(c buffalo.Context, queries ...qm.QueryMod) ([]*UserWithZgroup, *Pagination, error) {
+func PaginatedUsers(c buffalo.Context, queries ...qm.QueryMod) ([]*UserWithGroup, *Pagination, error) {
 	pagination, clauses := getPagination(c)
-	clauses = append(clauses, qm.Load(models.UserRels.Zgroups, models.ZgroupWhere.Archived.EQ(false)))
+	clauses = append(clauses, qm.Load(models.UserRels.Groups, models.GroupWhere.Archived.EQ(false)))
 	clauses = append(clauses, queries...)
 	users, err := models.Users(
 		clauses...,
@@ -67,28 +67,28 @@ func PaginatedUsers(c buffalo.Context, queries ...qm.QueryMod) ([]*UserWithZgrou
 	if len(users) > 0 {
 		pagination.Cursor = users[len(users)-1].ID
 	}
-	enrichedUsers := []*UserWithZgroup{}
+	enrichedUsers := []*UserWithGroup{}
 	for _, user := range users {
-		enrichedUsers = append(enrichedUsers, &UserWithZgroup{
-			User:   *user,
-			Zgroup: ZgroupForUser(user),
+		enrichedUsers = append(enrichedUsers, &UserWithGroup{
+			User:  *user,
+			Group: GroupForUser(user),
 		})
 	}
 	return enrichedUsers, pagination, nil
 }
 
 // FindUser finds the profile for the given user
-func FindUser(c buffalo.Context, id int) (*UserWithZgroup, error) {
+func FindUser(c buffalo.Context, id int) (*UserWithGroup, error) {
 	user, err := models.Users(
 		models.UserWhere.ID.EQ(id),
-		qm.Load(models.UserRels.Zgroups, models.ZgroupWhere.Archived.EQ(false)),
+		qm.Load(models.UserRels.Groups, models.GroupWhere.Archived.EQ(false)),
 	).One(c, getTx(c))
 	if err != nil || user == nil {
 		return nil, err
 	}
-	return &UserWithZgroup{
-		User:   *user,
-		Zgroup: ZgroupForUser(user),
+	return &UserWithGroup{
+		User:  *user,
+		Group: GroupForUser(user),
 	}, nil
 }
 

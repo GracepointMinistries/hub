@@ -52,15 +52,6 @@ var UserColumns = struct {
 
 // Generated where
 
-type whereHelperbool struct{ field string }
-
-func (w whereHelperbool) EQ(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelperbool) NEQ(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelperbool) LT(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelperbool) LTE(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelperbool) GT(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelperbool) GTE(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
-
 var UserWhere = struct {
 	ID        whereHelperint
 	Name      whereHelperstring
@@ -79,20 +70,20 @@ var UserWhere = struct {
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
+	Groups   string
 	Oauths   string
 	Sessions string
-	Zgroups  string
 }{
+	Groups:   "Groups",
 	Oauths:   "Oauths",
 	Sessions: "Sessions",
-	Zgroups:  "Zgroups",
 }
 
 // userR is where relationships are stored.
 type userR struct {
+	Groups   GroupSlice   `boil:"Groups" json:"Groups" toml:"Groups" yaml:"Groups"`
 	Oauths   OauthSlice   `boil:"Oauths" json:"Oauths" toml:"Oauths" yaml:"Oauths"`
 	Sessions SessionSlice `boil:"Sessions" json:"Sessions" toml:"Sessions" yaml:"Sessions"`
-	Zgroups  ZgroupSlice  `boil:"Zgroups" json:"Zgroups" toml:"Zgroups" yaml:"Zgroups"`
 }
 
 // NewStruct creates a new relationship struct
@@ -201,6 +192,28 @@ func (q userQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool,
 	return count > 0, nil
 }
 
+// Groups retrieves all the group's Groups with an executor.
+func (o *User) Groups(mods ...qm.QueryMod) groupQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.InnerJoin("\"group_members\" on \"groups\".\"id\" = \"group_members\".\"group_id\""),
+		qm.Where("\"group_members\".\"user_id\"=?", o.ID),
+	)
+
+	query := Groups(queryMods...)
+	queries.SetFrom(query.Query, "\"groups\"")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"\"groups\".*"})
+	}
+
+	return query
+}
+
 // Oauths retrieves all the oauth's Oauths with an executor.
 func (o *User) Oauths(mods ...qm.QueryMod) oauthQuery {
 	var queryMods []qm.QueryMod
@@ -244,26 +257,112 @@ func (o *User) Sessions(mods ...qm.QueryMod) sessionQuery {
 	return query
 }
 
-// Zgroups retrieves all the zgroup's Zgroups with an executor.
-func (o *User) Zgroups(mods ...qm.QueryMod) zgroupQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
+// LoadGroups allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadGroups(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*[]*User)
 	}
 
-	queryMods = append(queryMods,
-		qm.InnerJoin("\"zgroup_members\" on \"zgroups\".\"id\" = \"zgroup_members\".\"zgroup_id\""),
-		qm.Where("\"zgroup_members\".\"user_id\"=?", o.ID),
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.Select("\"groups\".id, \"groups\".name, \"groups\".zoom_link, \"groups\".published, \"groups\".archived, \"groups\".updated_at, \"groups\".created_at, \"a\".\"user_id\""),
+		qm.From("\"groups\""),
+		qm.InnerJoin("\"group_members\" as \"a\" on \"groups\".\"id\" = \"a\".\"group_id\""),
+		qm.WhereIn("\"a\".\"user_id\" in ?", args...),
 	)
-
-	query := Zgroups(queryMods...)
-	queries.SetFrom(query.Query, "\"zgroups\"")
-
-	if len(queries.GetSelect(query.Query)) == 0 {
-		queries.SetSelect(query.Query, []string{"\"zgroups\".*"})
+	if mods != nil {
+		mods.Apply(query)
 	}
 
-	return query
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load groups")
+	}
+
+	var resultSlice []*Group
+
+	var localJoinCols []int
+	for results.Next() {
+		one := new(Group)
+		var localJoinCol int
+
+		err = results.Scan(&one.ID, &one.Name, &one.ZoomLink, &one.Published, &one.Archived, &one.UpdatedAt, &one.CreatedAt, &localJoinCol)
+		if err != nil {
+			return errors.Wrap(err, "failed to scan eager loaded results for groups")
+		}
+		if err = results.Err(); err != nil {
+			return errors.Wrap(err, "failed to plebian-bind eager loaded slice groups")
+		}
+
+		resultSlice = append(resultSlice, one)
+		localJoinCols = append(localJoinCols, localJoinCol)
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on groups")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for groups")
+	}
+
+	if singular {
+		object.R.Groups = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &groupR{}
+			}
+			foreign.R.Users = append(foreign.R.Users, object)
+		}
+		return nil
+	}
+
+	for i, foreign := range resultSlice {
+		localJoinCol := localJoinCols[i]
+		for _, local := range slice {
+			if local.ID == localJoinCol {
+				local.R.Groups = append(local.R.Groups, foreign)
+				if foreign.R == nil {
+					foreign.R = &groupR{}
+				}
+				foreign.R.Users = append(foreign.R.Users, local)
+				break
+			}
+		}
+	}
+
+	return nil
 }
 
 // LoadOauths allows an eager lookup of values, cached into the
@@ -465,112 +564,144 @@ func (userL) LoadSessions(ctx context.Context, e boil.ContextExecutor, singular 
 	return nil
 }
 
-// LoadZgroups allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadZgroups(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
-	var slice []*User
-	var object *User
-
-	if singular {
-		object = maybeUser.(*User)
-	} else {
-		slice = *maybeUser.(*[]*User)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &userR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &userR{}
+// AddGroups adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.Groups.
+// Sets related.R.Users appropriately.
+func (o *User) AddGroups(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Group) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
 			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
 		}
 	}
 
-	if len(args) == 0 {
-		return nil
-	}
+	for _, rel := range related {
+		query := "insert into \"group_members\" (\"user_id\", \"group_id\") values ($1, $2)"
+		values := []interface{}{o.ID, rel.ID}
 
-	query := NewQuery(
-		qm.Select("\"zgroups\".id, \"zgroups\".name, \"zgroups\".zoom_link, \"zgroups\".published, \"zgroups\".archived, \"zgroups\".updated_at, \"zgroups\".created_at, \"a\".\"user_id\""),
-		qm.From("\"zgroups\""),
-		qm.InnerJoin("\"zgroup_members\" as \"a\" on \"zgroups\".\"id\" = \"a\".\"zgroup_id\""),
-		qm.WhereIn("\"a\".\"user_id\" in ?", args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load zgroups")
-	}
-
-	var resultSlice []*Zgroup
-
-	var localJoinCols []int
-	for results.Next() {
-		one := new(Zgroup)
-		var localJoinCol int
-
-		err = results.Scan(&one.ID, &one.Name, &one.ZoomLink, &one.Published, &one.Archived, &one.UpdatedAt, &one.CreatedAt, &localJoinCol)
+		if boil.IsDebug(ctx) {
+			writer := boil.DebugWriterFrom(ctx)
+			fmt.Fprintln(writer, query)
+			fmt.Fprintln(writer, values)
+		}
+		_, err = exec.ExecContext(ctx, query, values...)
 		if err != nil {
-			return errors.Wrap(err, "failed to scan eager loaded results for zgroups")
+			return errors.Wrap(err, "failed to insert into join table")
 		}
-		if err = results.Err(); err != nil {
-			return errors.Wrap(err, "failed to plebian-bind eager loaded slice zgroups")
+	}
+	if o.R == nil {
+		o.R = &userR{
+			Groups: related,
 		}
-
-		resultSlice = append(resultSlice, one)
-		localJoinCols = append(localJoinCols, localJoinCol)
+	} else {
+		o.R.Groups = append(o.R.Groups, related...)
 	}
 
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on zgroups")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for zgroups")
-	}
-
-	if singular {
-		object.R.Zgroups = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &zgroupR{}
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &groupR{
+				Users: UserSlice{o},
 			}
-			foreign.R.Users = append(foreign.R.Users, object)
+		} else {
+			rel.R.Users = append(rel.R.Users, o)
 		}
+	}
+	return nil
+}
+
+// SetGroups removes all previously related items of the
+// user replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Users's Groups accordingly.
+// Replaces o.R.Groups with related.
+// Sets related.R.Users's Groups accordingly.
+func (o *User) SetGroups(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Group) error {
+	query := "delete from \"group_members\" where \"user_id\" = $1"
+	values := []interface{}{o.ID}
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, query)
+		fmt.Fprintln(writer, values)
+	}
+	_, err := exec.ExecContext(ctx, query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+
+	removeGroupsFromUsersSlice(o, related)
+	if o.R != nil {
+		o.R.Groups = nil
+	}
+	return o.AddGroups(ctx, exec, insert, related...)
+}
+
+// RemoveGroups relationships from objects passed in.
+// Removes related items from R.Groups (uses pointer comparison, removal does not keep order)
+// Sets related.R.Users.
+func (o *User) RemoveGroups(ctx context.Context, exec boil.ContextExecutor, related ...*Group) error {
+	var err error
+	query := fmt.Sprintf(
+		"delete from \"group_members\" where \"user_id\" = $1 and \"group_id\" in (%s)",
+		strmangle.Placeholders(dialect.UseIndexPlaceholders, len(related), 2, 1),
+	)
+	values := []interface{}{o.ID}
+	for _, rel := range related {
+		values = append(values, rel.ID)
+	}
+
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, query)
+		fmt.Fprintln(writer, values)
+	}
+	_, err = exec.ExecContext(ctx, query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+	removeGroupsFromUsersSlice(o, related)
+	if o.R == nil {
 		return nil
 	}
 
-	for i, foreign := range resultSlice {
-		localJoinCol := localJoinCols[i]
-		for _, local := range slice {
-			if local.ID == localJoinCol {
-				local.R.Zgroups = append(local.R.Zgroups, foreign)
-				if foreign.R == nil {
-					foreign.R = &zgroupR{}
-				}
-				foreign.R.Users = append(foreign.R.Users, local)
-				break
+	for _, rel := range related {
+		for i, ri := range o.R.Groups {
+			if rel != ri {
+				continue
 			}
+
+			ln := len(o.R.Groups)
+			if ln > 1 && i < ln-1 {
+				o.R.Groups[i] = o.R.Groups[ln-1]
+			}
+			o.R.Groups = o.R.Groups[:ln-1]
+			break
 		}
 	}
 
 	return nil
+}
+
+func removeGroupsFromUsersSlice(o *User, related []*Group) {
+	for _, rel := range related {
+		if rel.R == nil {
+			continue
+		}
+		for i, ri := range rel.R.Users {
+			if o.ID != ri.ID {
+				continue
+			}
+
+			ln := len(rel.R.Users)
+			if ln > 1 && i < ln-1 {
+				rel.R.Users[i] = rel.R.Users[ln-1]
+			}
+			rel.R.Users = rel.R.Users[:ln-1]
+			break
+		}
+	}
 }
 
 // AddOauths adds the given related objects to the existing relationships
@@ -764,146 +895,6 @@ func (o *User) AddSessions(ctx context.Context, exec boil.ContextExecutor, inser
 		}
 	}
 	return nil
-}
-
-// AddZgroups adds the given related objects to the existing relationships
-// of the user, optionally inserting them as new records.
-// Appends related to o.R.Zgroups.
-// Sets related.R.Users appropriately.
-func (o *User) AddZgroups(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Zgroup) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		}
-	}
-
-	for _, rel := range related {
-		query := "insert into \"zgroup_members\" (\"user_id\", \"zgroup_id\") values ($1, $2)"
-		values := []interface{}{o.ID, rel.ID}
-
-		if boil.IsDebug(ctx) {
-			writer := boil.DebugWriterFrom(ctx)
-			fmt.Fprintln(writer, query)
-			fmt.Fprintln(writer, values)
-		}
-		_, err = exec.ExecContext(ctx, query, values...)
-		if err != nil {
-			return errors.Wrap(err, "failed to insert into join table")
-		}
-	}
-	if o.R == nil {
-		o.R = &userR{
-			Zgroups: related,
-		}
-	} else {
-		o.R.Zgroups = append(o.R.Zgroups, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &zgroupR{
-				Users: UserSlice{o},
-			}
-		} else {
-			rel.R.Users = append(rel.R.Users, o)
-		}
-	}
-	return nil
-}
-
-// SetZgroups removes all previously related items of the
-// user replacing them completely with the passed
-// in related items, optionally inserting them as new records.
-// Sets o.R.Users's Zgroups accordingly.
-// Replaces o.R.Zgroups with related.
-// Sets related.R.Users's Zgroups accordingly.
-func (o *User) SetZgroups(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Zgroup) error {
-	query := "delete from \"zgroup_members\" where \"user_id\" = $1"
-	values := []interface{}{o.ID}
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, query)
-		fmt.Fprintln(writer, values)
-	}
-	_, err := exec.ExecContext(ctx, query, values...)
-	if err != nil {
-		return errors.Wrap(err, "failed to remove relationships before set")
-	}
-
-	removeZgroupsFromUsersSlice(o, related)
-	if o.R != nil {
-		o.R.Zgroups = nil
-	}
-	return o.AddZgroups(ctx, exec, insert, related...)
-}
-
-// RemoveZgroups relationships from objects passed in.
-// Removes related items from R.Zgroups (uses pointer comparison, removal does not keep order)
-// Sets related.R.Users.
-func (o *User) RemoveZgroups(ctx context.Context, exec boil.ContextExecutor, related ...*Zgroup) error {
-	var err error
-	query := fmt.Sprintf(
-		"delete from \"zgroup_members\" where \"user_id\" = $1 and \"zgroup_id\" in (%s)",
-		strmangle.Placeholders(dialect.UseIndexPlaceholders, len(related), 2, 1),
-	)
-	values := []interface{}{o.ID}
-	for _, rel := range related {
-		values = append(values, rel.ID)
-	}
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, query)
-		fmt.Fprintln(writer, values)
-	}
-	_, err = exec.ExecContext(ctx, query, values...)
-	if err != nil {
-		return errors.Wrap(err, "failed to remove relationships before set")
-	}
-	removeZgroupsFromUsersSlice(o, related)
-	if o.R == nil {
-		return nil
-	}
-
-	for _, rel := range related {
-		for i, ri := range o.R.Zgroups {
-			if rel != ri {
-				continue
-			}
-
-			ln := len(o.R.Zgroups)
-			if ln > 1 && i < ln-1 {
-				o.R.Zgroups[i] = o.R.Zgroups[ln-1]
-			}
-			o.R.Zgroups = o.R.Zgroups[:ln-1]
-			break
-		}
-	}
-
-	return nil
-}
-
-func removeZgroupsFromUsersSlice(o *User, related []*Zgroup) {
-	for _, rel := range related {
-		if rel.R == nil {
-			continue
-		}
-		for i, ri := range rel.R.Users {
-			if o.ID != ri.ID {
-				continue
-			}
-
-			ln := len(rel.R.Users)
-			if ln > 1 && i < ln-1 {
-				rel.R.Users[i] = rel.R.Users[ln-1]
-			}
-			rel.R.Users = rel.R.Users[:ln-1]
-			break
-		}
-	}
 }
 
 // Users retrieves all the records using an executor.

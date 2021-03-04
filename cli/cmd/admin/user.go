@@ -13,8 +13,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func selectUser(c *client.APIClient, filter string) (*client.UserWithZgroup, error) {
-	return clientext.PageUsers(c, filter, func(final bool, users []client.UserWithZgroup) (*client.UserWithZgroup, error) {
+func selectUser(c *client.APIClient, filter string) (*client.UserWithGroup, error) {
+	return clientext.PageUsers(c, filter, func(final bool, users []client.UserWithGroup) (*client.UserWithGroup, error) {
 		lookup, options := print.UserSelectOptions(final, users)
 		prompt := promptui.Select{
 			Label:        print.Bold("Select User"),

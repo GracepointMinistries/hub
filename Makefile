@@ -1,10 +1,15 @@
 .PHONY: generate
-generate:
+generate: clean-generate
 	@echo "Running go generate"
 	@SWAGGER_GENERATE_EXTENSION=false go generate
 	@echo "Generating swagger clients"
 	@swagger-codegen generate -i swagger.json -l dart -o dart/client
 	@swagger-codegen generate -i swagger.json -l go -o client -DpackageName=client
+
+.PHONY: clean-generate
+clean-generate:
+	@echo "Cleaning up generated files"
+	@rm -rf dart/client client
 
 .PHONY: deps
 deps:

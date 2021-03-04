@@ -91,7 +91,7 @@ name = "basic sample data"
             oauth_id = 5
 
     [[scenario.table]]
-        name = "zgroups"
+        name = "groups"
 
         [[scenario.table.row]]
             id = 1
@@ -118,20 +118,20 @@ name = "basic sample data"
             created_at = 2019-07-17T10:00:00Z
 
     [[scenario.table]]
-        name = "zgroup_members"
+        name = "group_members"
 
         [[scenario.table.row]]
-            zgroup_id = 1
+            group_id = 1
             user_id = 1
 
         [[scenario.table.row]]
-            zgroup_id = 1
+            group_id = 1
             user_id = 3
 
         [[scenario.table.row]]
-            zgroup_id = 2
+            group_id = 2
             user_id = 4
 
         [[scenario.table.row]]
-            zgroup_id = 3
+            group_id = 3
             user_id = 5

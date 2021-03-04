@@ -10,7 +10,7 @@ import (
 const defaultLimit = 10
 
 // PaginationParameters wrap the inbound parameters
-// swagger:parameters users zgroups
+// swagger:parameters users groups
 type PaginationParameters struct {
 	// in:query
 	Limit int `json:"limit"`

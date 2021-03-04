@@ -13,11 +13,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func selectGroup(c *client.APIClient, filter string) (*client.Zgroup, error) {
-	return clientext.PageGroups(c, filter, func(final bool, zgroups []client.Zgroup) (*client.Zgroup, error) {
+func selectGroup(c *client.APIClient, filter string) (*client.Group, error) {
+	return clientext.PageGroups(c, filter, func(final bool, zgroups []client.Group) (*client.Group, error) {
 		lookup, options := print.GroupSelectOptions(final, zgroups)
 		prompt := promptui.Select{
-			Label:        print.Bold("Select ZGroup"),
+			Label:        print.Bold("Select Group"),
 			Items:        options,
 			HideSelected: true,
 			Stdout:       utils.NewBellSkipper(),
@@ -38,25 +38,25 @@ func selectGroup(c *client.APIClient, filter string) (*client.Zgroup, error) {
 
 var groupCmd = &cobra.Command{
 	Use:   "group",
-	Short: "Retrieve information about a zGroup",
+	Short: "Retrieve information about a group",
 	Run: func(cmd *cobra.Command, args []string) {
 		c := clientext.NewClient()
-		if zgroup == 0 {
+		if group == 0 {
 			selected, err := selectGroup(c, filter)
 			utils.CheckError(err)
 			if selected == nil {
 				fmt.Fprintln(os.Stderr, print.Bold("No more results"))
 				os.Exit(1)
 			}
-			zgroup = selected.Id
+			group = selected.Id
 		}
-		payload, _, err := c.AdminApi.Zgroup(context.Background(), zgroup)
+		payload, _, err := c.AdminApi.Group(context.Background(), group)
 		utils.CheckError(err)
-		print.DumpGroup(payload.Zgroup, payload.Users)
+		print.DumpGroup(payload.Group, payload.Users)
 	},
 }
 
 func init() {
-	groupCmd.Flags().Int64VarP(&zgroup, "group-id", "g", 0, "zGroup to retrieve information for")
-	groupCmd.Flags().StringVarP(&filter, "filter", "f", "", "names of zGroups to filter for")
+	groupCmd.Flags().Int64VarP(&group, "group-id", "g", 0, "group to retrieve information for")
+	groupCmd.Flags().StringVarP(&filter, "filter", "f", "", "names of groups to filter for")
 }
