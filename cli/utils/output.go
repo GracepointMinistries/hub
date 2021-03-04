@@ -1,6 +1,9 @@
-package cmd
+package utils
 
-import "os"
+import (
+	"io"
+	"os"
+)
 
 // bellSkipper implements an io.WriteCloser that skips the terminal bell
 // character (ASCII code 7), and writes the rest to os.Stderr. It is used to
@@ -10,6 +13,12 @@ import "os"
 // This is a workaround for the bell issue documented in
 // https://github.com/manifoldco/promptui/issues/49.
 type bellSkipper struct{}
+
+// NewBellSkipper creates an io.WriteCloser that fixes
+// the bell issue with promptui/readline
+func NewBellSkipper() io.WriteCloser {
+	return &bellSkipper{}
+}
 
 // Write implements an io.WriterCloser over os.Stderr, but it skips the terminal
 // bell character.

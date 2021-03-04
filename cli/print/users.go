@@ -1,4 +1,4 @@
-package cmd
+package print
 
 import (
 	"os"
@@ -10,7 +10,8 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-func dumpUsersWithZgroup(users ...client.UserWithZgroup) {
+// DumpUsers prints users sorted by group
+func DumpUsers(users ...client.UserWithZgroup) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"ZGroup", "ID", "Name", "Email", "Created"})
 	data := make([][]string, len(users))
@@ -19,7 +20,7 @@ func dumpUsersWithZgroup(users ...client.UserWithZgroup) {
 		if user.Zgroup != nil {
 			name := user.Zgroup.Name
 			if user.Zgroup.Archived {
-				name += " " + warning("(archived)")
+				name += " " + Warning("(archived)")
 			}
 			values = append(values, name)
 		} else {
@@ -55,47 +56,6 @@ func dumpUsersWithZgroup(users ...client.UserWithZgroup) {
 		tablewriter.Colors{},
 	)
 	table.SetAutoMergeCellsByColumnIndex([]int{0})
-	table.SetRowLine(true)
-	table.Render()
-}
-
-func dumpZGroupUsers(zgroup *client.Zgroup, users []client.User) {
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{
-		"Zgroup",
-		"ID",
-		"Name",
-		"Email",
-		"Created",
-	})
-	table.SetHeaderColor(
-		tablewriter.Colors{tablewriter.Bold},
-		tablewriter.Colors{tablewriter.Bold},
-		tablewriter.Colors{tablewriter.Bold},
-		tablewriter.Colors{tablewriter.Bold},
-		tablewriter.Colors{tablewriter.Bold},
-	)
-	table.SetColumnColor(
-		tablewriter.Colors{tablewriter.Bold},
-		tablewriter.Colors{},
-		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiCyanColor},
-		tablewriter.Colors{},
-		tablewriter.Colors{},
-	)
-	table.SetAutoMergeCellsByColumnIndex([]int{0})
-	name := zgroup.Name
-	if zgroup.Archived {
-		name += " " + warning("(archived)")
-	}
-	for _, user := range users {
-		table.Append([]string{
-			name,
-			strconv.Itoa(int(user.Id)),
-			user.Name,
-			user.Email,
-			user.CreatedAt.Format(time.RFC1123),
-		})
-	}
 	table.SetRowLine(true)
 	table.Render()
 }
