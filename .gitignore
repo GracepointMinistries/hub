@@ -46,6 +46,5 @@ terraform.tfvars
 /client/.swagger-codegen-ignore
 /client/.travis.yml
 /client/git_push.sh
-/client/README.md
 
 /cli/hub-cli
