@@ -6,19 +6,114 @@ import (
 	"reflect"
 	"strconv"
 
+	"github.com/GracepointMinistries/hub/modelext"
 	"github.com/GracepointMinistries/hub/models"
+	"github.com/gobuffalo/buffalo"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	sheets "google.golang.org/api/sheets/v4"
 )
 
-type groupSlice []*struct {
+type typeToCell struct {
+	offset int64
+	name   string
+}
+
+var (
+	allGroupRange      string
+	allUserRange       string
+	groupHeaders       []string
+	userHeaders        []string
+	groupHeadersLookup map[string]typeToCell
+	userHeadersLookup  map[string]typeToCell
+)
+
+func init() {
+	group := reflect.TypeOf(groupSlice{}).Elem().Elem()
+	groupHeaders = make([]string, group.NumField())
+	groupHeadersLookup = make(map[string]typeToCell, group.NumField())
+	for i := 0; i < group.NumField(); i++ {
+		header := group.FieldByIndex([]int{i}).Name
+		groupHeaders[i] = header
+		groupHeadersLookup[header] = typeToCell{
+			offset: int64(i),
+			name:   string(rune('A') + rune(i)),
+		}
+	}
+	groupRangeBegin := "A"
+	groupRangeEnd := string(rune('A') + rune(group.NumField()))
+	// 'SHEET TITLE'!X:Y
+	allGroupRange = makeRange(groupsTitle, groupRangeBegin+":"+groupRangeEnd)
+
+	user := reflect.TypeOf(userSlice{}).Elem().Elem()
+	userHeaders = make([]string, user.NumField())
+	userHeadersLookup = make(map[string]typeToCell, user.NumField())
+	for i := 0; i < user.NumField(); i++ {
+		header := user.FieldByIndex([]int{i}).Name
+		userHeaders[i] = header
+		userHeadersLookup[header] = typeToCell{
+			offset: int64(i),
+			name:   string(rune('A') + rune(i)),
+		}
+	}
+	userRangeBegin := "A"
+	userRangeEnd := string(rune('A') + rune(group.NumField()))
+	// 'SHEET TITLE'!X:Y
+	allUserRange = makeRange(usersTitle, userRangeBegin+":"+userRangeEnd)
+}
+
+func dataRangeFor(col typeToCell) string {
+	column := col.name
+	// skip the header
+	return column + "2:" + column
+}
+
+func stringSliceToInterfaceSlice(a []string) []interface{} {
+	b := make([]interface{}, len(a))
+	for i := range a {
+		b[i] = a[i]
+	}
+	return b
+}
+
+func pointerToInterface(v interface{}) interface{} {
+	val := reflect.ValueOf(v)
+	if val.Kind() != reflect.Ptr {
+		// we can't work with non-pointers
+		return nil
+	}
+	if val.IsNil() {
+		return nil
+	}
+	return val.Elem().Interface()
+}
+
+func serializeStructToInterfaceSlice(v interface{}, headers []string) []interface{} {
+	val := reflect.ValueOf(v)
+	if val.Kind() != reflect.Ptr {
+		// we can't work with non-pointers
+		return nil
+	}
+	// we're just going to assume proper bounds
+	ind := reflect.Indirect(val)
+	values := make([]interface{}, ind.NumField())
+	for i := 0; i < ind.NumField(); i++ {
+		field := ind.FieldByName(headers[i])
+		values[i] = pointerToInterface(field.Interface())
+	}
+	return values
+}
+
+type innerGroup struct {
 	// order matters here, it needs to be the same as
 	// the expected header ordering
-	ID        *int
-	Name      *string
-	ZoomLink  *string
-	Published *bool
-	Archived  *bool
+	ID        *int    `json:"id"`
+	Name      *string `json:"name"`
+	ZoomLink  *string `json:"zoomLink"`
+	Published *bool   `json:"published"`
+	Archived  *bool   `json:"archived"`
 }
+
+type groupSlice []*innerGroup
 
 func newGroupSlice() *groupSlice {
 	return &groupSlice{}
@@ -28,19 +123,52 @@ func (g *groupSlice) Unmarshal(values *sheets.ValueRange) error {
 	return unmarshal(g, values)
 }
 
+func (g *groupSlice) Marshal() *sheets.ValueRange {
+	values := make([][]interface{}, len(*g)+1) // +1 for the header
+	values[0] = stringSliceToInterfaceSlice(groupHeaders)
+	for i, group := range *g {
+		values[i+1] = serializeStructToInterfaceSlice(group, groupHeaders)
+	}
+	return &sheets.ValueRange{
+		Range:  allGroupRange,
+		Values: values,
+	}
+}
+
 func (g *groupSlice) ToDB() []*models.Group {
 	return nil
 }
 
-type userSlice []*struct {
+// constructs a group slice from the database
+func dbGroupSlice(c buffalo.Context) (*groupSlice, error) {
+	dbGroups, err := models.Groups().All(c, modelext.GetTx(c))
+	if err != nil {
+		return nil, err
+	}
+	groups := make(groupSlice, len(dbGroups))
+	for i, group := range dbGroups {
+		groups[i] = &innerGroup{
+			ID:        &group.ID,
+			Name:      &group.Name,
+			ZoomLink:  &group.ZoomLink,
+			Published: &group.Published,
+			Archived:  &group.Archived,
+		}
+	}
+	return &groups, nil
+}
+
+type innerUser struct {
 	// order matters here, it needs to be the same as
 	// the expected header ordering
-	ID      *int
-	Name    *string
-	Email   *string
-	Blocked *bool
-	Group   *string
+	ID      *int    `json:"id"`
+	Name    *string `json:"name"`
+	Email   *string `json:"email"`
+	Blocked *bool   `json:"blocked"`
+	Group   *string `json:"group"`
 }
+
+type userSlice []*innerUser
 
 func newUserSlice() *userSlice {
 	return &userSlice{}
@@ -50,8 +178,45 @@ func (u *userSlice) Unmarshal(values *sheets.ValueRange) error {
 	return unmarshal(u, values)
 }
 
+func (u *userSlice) Marshal() *sheets.ValueRange {
+	values := make([][]interface{}, len(*u)+1) // +1 for the header
+	values[0] = stringSliceToInterfaceSlice(userHeaders)
+	for i, user := range *u {
+		values[i+1] = serializeStructToInterfaceSlice(user, userHeaders)
+	}
+	return &sheets.ValueRange{
+		Range:  allUserRange,
+		Values: values,
+	}
+}
+
 func (u *userSlice) ToDB() []*models.User {
 	return nil
+}
+
+// constructs a user slice from the database
+func dbUserSlice(c buffalo.Context) (*userSlice, error) {
+	dbUsers, err := models.Users(
+		qm.Load(models.UserRels.Groups, models.GroupWhere.Archived.EQ(false)),
+	).All(c, modelext.GetTx(c))
+	if err != nil {
+		return nil, err
+	}
+	users := make(userSlice, len(dbUsers))
+	for i, user := range dbUsers {
+		group := modelext.GroupForUser(user)
+		inner := &innerUser{
+			ID:      &user.ID,
+			Name:    &user.Name,
+			Email:   &user.Email,
+			Blocked: &user.Blocked,
+		}
+		if group != nil {
+			inner.Group = &group.Name
+		}
+		users[i] = inner
+	}
+	return &users, nil
 }
 
 func setString(v reflect.Value, s string) error {

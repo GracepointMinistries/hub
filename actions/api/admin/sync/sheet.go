@@ -58,7 +58,7 @@ func Initialize(c buffalo.Context) error {
 //	 500: errorResponse
 func Export(c buffalo.Context) error {
 	sheet := settings.Sheet()
-	err := sync.DumpToSpreadsheet(sheet)
+	err := sync.DumpToSpreadsheet(c, sheet)
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}
