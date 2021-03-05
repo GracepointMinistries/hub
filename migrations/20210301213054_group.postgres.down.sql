@@ -1,4 +1,4 @@
-DROP TABLE zgroup_members;
+DROP TABLE group_members;
 
 DROP TABLE GROUPS;
 

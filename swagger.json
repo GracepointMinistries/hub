@@ -183,6 +183,35 @@
         }
       }
     },
+    "/api/v1/admin/sync/dump": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Returns a google sheet reference.",
+        "operationId": "dumpSync",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/adminSyncSheetResponse"
+          },
+          "400": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "422": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/errorResponse"
+          }
+        }
+      }
+    },
     "/api/v1/admin/users": {
       "get": {
         "tags": [
