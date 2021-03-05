@@ -11,6 +11,7 @@ import (
 )
 
 var (
+	syncEmail   string
 	syncClient  *sheets.Service
 	driveClient *drive.Service
 )
@@ -21,6 +22,7 @@ func SetupClient() error {
 	if err != nil {
 		return err
 	}
+	syncEmail = email
 	privateKey, err := envy.MustGet("GOOGLE_CLIENT_PRIVATE_KEY")
 	if err != nil {
 		return err

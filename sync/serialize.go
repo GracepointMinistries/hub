@@ -6,10 +6,6 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/GracepointMinistries/hub/modelext"
-	"github.com/GracepointMinistries/hub/models"
-	"github.com/gobuffalo/buffalo"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	sheets "google.golang.org/api/sheets/v4"
 )
 
@@ -18,61 +14,18 @@ type typeToCell struct {
 	name   string
 }
 
-var (
-	allGroupRange      string
-	groupColumnBegin   int64
-	groupColumnEnd     int64
-	allUserRange       string
-	userColumnBegin    int64
-	userColumnEnd      int64
-	groupHeaders       []string
-	userHeaders        []string
-	groupHeadersLookup map[string]typeToCell
-	userHeadersLookup  map[string]typeToCell
-)
-
-func init() {
-	group := reflect.TypeOf(groupSlice{}).Elem().Elem()
-	groupHeaders = make([]string, group.NumField())
-	groupHeadersLookup = make(map[string]typeToCell, group.NumField())
-	groupColumnBegin = 0
-	for i := 0; i < group.NumField(); i++ {
-		header := group.FieldByIndex([]int{i}).Name
-		groupColumnEnd = int64(i)
-		groupHeaders[i] = header
-		groupHeadersLookup[header] = typeToCell{
-			offset: groupColumnEnd,
-			name:   string(rune('A') + rune(i)),
-		}
-	}
-	groupRangeBegin := "A"
-	groupRangeEnd := string(rune('A') + rune(group.NumField()))
-	// 'SHEET TITLE'!X:Y
-	allGroupRange = makeRange(groupsTitle, groupRangeBegin+":"+groupRangeEnd)
-
-	user := reflect.TypeOf(userSlice{}).Elem().Elem()
-	userHeaders = make([]string, user.NumField())
-	userHeadersLookup = make(map[string]typeToCell, user.NumField())
-	userColumnBegin = 0
-	for i := 0; i < user.NumField(); i++ {
-		header := user.FieldByIndex([]int{i}).Name
-		userColumnEnd = int64(i)
-		userHeaders[i] = header
-		userHeadersLookup[header] = typeToCell{
-			offset: userColumnEnd,
-			name:   string(rune('A') + rune(i)),
-		}
-	}
-	userRangeBegin := "A"
-	userRangeEnd := string(rune('A') + rune(group.NumField()))
-	// 'SHEET TITLE'!X:Y
-	allUserRange = makeRange(usersTitle, userRangeBegin+":"+userRangeEnd)
-}
+const headerStart int64 = 1
 
 func dataRangeFor(col typeToCell) string {
 	column := col.name
 	// skip the header
-	return column + "2:" + column
+	return column + strconv.Itoa(int(headerStart)+1) + ":" + column
+}
+
+func absoluteDataRangeFor(col typeToCell) string {
+	column := col.name
+	// skip the header
+	return column + "$" + strconv.Itoa(int(headerStart)+1) + ":" + column
 }
 
 func stringSliceToInterfaceSlice(a []string) []interface{} {
@@ -109,122 +62,6 @@ func serializeStructToInterfaceSlice(v interface{}, headers []string) []interfac
 		values[i] = pointerToInterface(field.Interface())
 	}
 	return values
-}
-
-type innerGroup struct {
-	// order matters here, it needs to be the same as
-	// the expected header ordering
-	ID        *int    `json:"id"`
-	Name      *string `json:"name"`
-	ZoomLink  *string `json:"zoomLink"`
-	Published *bool   `json:"published"`
-	Archived  *bool   `json:"archived"`
-}
-
-type groupSlice []*innerGroup
-
-func newGroupSlice() *groupSlice {
-	return &groupSlice{}
-}
-
-func (g *groupSlice) Unmarshal(values *sheets.ValueRange) error {
-	return unmarshal(g, values)
-}
-
-func (g *groupSlice) Marshal() *sheets.ValueRange {
-	values := make([][]interface{}, len(*g)+1) // +1 for the header
-	values[0] = stringSliceToInterfaceSlice(groupHeaders)
-	for i, group := range *g {
-		values[i+1] = serializeStructToInterfaceSlice(group, groupHeaders)
-	}
-	return &sheets.ValueRange{
-		Range:  allGroupRange,
-		Values: values,
-	}
-}
-
-func (g *groupSlice) ToDB() []*models.Group {
-	return nil
-}
-
-// constructs a group slice from the database
-func dbGroupSlice(c buffalo.Context) (*groupSlice, error) {
-	dbGroups, err := models.Groups().All(c, modelext.GetTx(c))
-	if err != nil {
-		return nil, err
-	}
-	groups := make(groupSlice, len(dbGroups))
-	for i, group := range dbGroups {
-		groups[i] = &innerGroup{
-			ID:        &group.ID,
-			Name:      &group.Name,
-			ZoomLink:  &group.ZoomLink,
-			Published: &group.Published,
-			Archived:  &group.Archived,
-		}
-	}
-	return &groups, nil
-}
-
-type innerUser struct {
-	// order matters here, it needs to be the same as
-	// the expected header ordering
-	ID      *int    `json:"id"`
-	Name    *string `json:"name"`
-	Email   *string `json:"email"`
-	Blocked *bool   `json:"blocked"`
-	Group   *string `json:"group"`
-}
-
-type userSlice []*innerUser
-
-func newUserSlice() *userSlice {
-	return &userSlice{}
-}
-
-func (u *userSlice) Unmarshal(values *sheets.ValueRange) error {
-	return unmarshal(u, values)
-}
-
-func (u *userSlice) Marshal() *sheets.ValueRange {
-	values := make([][]interface{}, len(*u)+1) // +1 for the header
-	values[0] = stringSliceToInterfaceSlice(userHeaders)
-	for i, user := range *u {
-		values[i+1] = serializeStructToInterfaceSlice(user, userHeaders)
-	}
-	return &sheets.ValueRange{
-		Range:  allUserRange,
-		Values: values,
-	}
-}
-
-func (u *userSlice) ToDB() []*models.User {
-	return nil
-}
-
-// constructs a user slice from the database
-func dbUserSlice(c buffalo.Context) (*userSlice, error) {
-	dbUsers, err := models.Users(
-		qm.Load(models.UserRels.Groups, models.GroupWhere.Archived.EQ(false)),
-	).All(c, modelext.GetTx(c))
-	if err != nil {
-		return nil, err
-	}
-	users := make(userSlice, len(dbUsers))
-	for i, user := range dbUsers {
-		group := modelext.GroupForUser(user)
-		inner := &innerUser{
-			ID:      &user.ID,
-			Name:    &user.Name,
-			Email:   &user.Email,
-			Blocked: &user.Blocked,
-		}
-		if group != nil {
-			inner.Group = &group.Name
-		}
-		users[i] = inner
-	}
-	return &users, nil
 }
 
 func setString(v reflect.Value, s string) error {
@@ -357,10 +194,10 @@ func unmarshalWithHeaders(v interface{}, headers []interface{}, data [][]interfa
 
 func unmarshal(v interface{}, values *sheets.ValueRange) error {
 	data := values.Values
-	if len(data) == 0 {
-		return errors.New("invalid group data")
+	if len(data) <= int(headerStart)+1 { // we don't even have the header data
+		return errors.New("invalid spreadsheet data")
 	}
-	if err := unmarshalWithHeaders(v, data[0], data[1:]); err != nil {
+	if err := unmarshalWithHeaders(v, data[headerStart], data[headerStart:]); err != nil {
 		return err
 	}
 	return nil
