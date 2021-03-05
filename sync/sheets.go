@@ -3,7 +3,6 @@ package sync
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/gobuffalo/buffalo"
@@ -85,8 +84,6 @@ func rangeValidationRule(sheetID, dataColumnOffset int64, validationRange string
 }
 
 func createValidationRules(id string, groupID, userID int64) error {
-	log.Println(id, groupID, userID)
-
 	userGroupColumnOffset := userHeadersLookup["Group"].offset
 	userBlockedColumnOffset := userHeadersLookup["Blocked"].offset
 	groupPublishedColumnOffset := groupHeadersLookup["Published"].offset
@@ -104,6 +101,123 @@ func createValidationRules(id string, groupID, userID int64) error {
 			booleanValidationRule(groupID, groupArchivedColumnOffset),
 			// User boolean mappings
 			booleanValidationRule(userID, userBlockedColumnOffset),
+		},
+	}
+	_, err := syncClient.Spreadsheets.BatchUpdate(id, request).Do()
+	return err
+}
+
+func autoSizeRequest(sheetID, begin, end int64, orientation string) *sheets.Request {
+	return &sheets.Request{
+		AutoResizeDimensions: &sheets.AutoResizeDimensionsRequest{
+			Dimensions: &sheets.DimensionRange{
+				Dimension:  orientation,
+				SheetId:    sheetID,
+				StartIndex: begin,
+				EndIndex:   end + 1,
+			},
+		},
+	}
+}
+
+func headerFormattingRequest(sheetID, begin, end int64) *sheets.Request {
+	return &sheets.Request{
+		RepeatCell: &sheets.RepeatCellRequest{
+			Fields: "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)",
+			Range: &sheets.GridRange{
+				SheetId:          sheetID,
+				StartColumnIndex: begin,
+				EndColumnIndex:   end + 1,
+				StartRowIndex:    0,
+				EndRowIndex:      1,
+			},
+			Cell: &sheets.CellData{
+				UserEnteredFormat: &sheets.CellFormat{
+					BackgroundColor: &sheets.Color{
+						Red:   0.0,
+						Green: 0.0,
+						Blue:  0.0,
+					},
+					HorizontalAlignment: "CENTER",
+					TextFormat: &sheets.TextFormat{
+						ForegroundColor: &sheets.Color{
+							Red:   1.0,
+							Green: 1.0,
+							Blue:  1.0,
+						},
+						Bold:     true,
+						FontSize: 12,
+					},
+				},
+			},
+		},
+	}
+}
+
+func formatAlignLeftRequest(sheetID, column int64) *sheets.Request {
+	return &sheets.Request{
+		RepeatCell: &sheets.RepeatCellRequest{
+			Fields: "userEnteredFormat(horizontalAlignment)",
+			Range: &sheets.GridRange{
+				SheetId:          sheetID,
+				StartColumnIndex: column,
+				EndColumnIndex:   column + 1,
+				// skip the header
+				StartRowIndex: 1,
+			},
+			Cell: &sheets.CellData{
+				UserEnteredFormat: &sheets.CellFormat{
+					HorizontalAlignment: "LEFT",
+				},
+			},
+		},
+	}
+}
+
+func formatAlignRightRequest(sheetID, column int64) *sheets.Request {
+	return &sheets.Request{
+		RepeatCell: &sheets.RepeatCellRequest{
+			Fields: "userEnteredFormat(horizontalAlignment)",
+			Range: &sheets.GridRange{
+				SheetId:          sheetID,
+				StartColumnIndex: column,
+				EndColumnIndex:   column + 1,
+				// skip the header
+				StartRowIndex: 1,
+			},
+			Cell: &sheets.CellData{
+				UserEnteredFormat: &sheets.CellFormat{
+					HorizontalAlignment: "RIGHT",
+				},
+			},
+		},
+	}
+}
+
+func formatData(id string, groupID, userID int64) error {
+	groupIDColumnOffset := groupHeadersLookup["ID"].offset
+	groupNameColumnOffset := groupHeadersLookup["Name"].offset
+	groupZoomLinkColumnOffset := groupHeadersLookup["ZoomLink"].offset
+	userIDColumnOffset := userHeadersLookup["ID"].offset
+	userNameColumnOffset := userHeadersLookup["Name"].offset
+	userEmailColumnOffset := userHeadersLookup["Email"].offset
+	userGroupColumnOffset := userHeadersLookup["Group"].offset
+
+	request := &sheets.BatchUpdateSpreadsheetRequest{
+		Requests: []*sheets.Request{
+			headerFormattingRequest(groupID, groupColumnBegin, groupColumnEnd),
+			headerFormattingRequest(userID, userColumnBegin, userColumnEnd),
+			formatAlignRightRequest(groupID, groupIDColumnOffset),
+			formatAlignRightRequest(userID, userIDColumnOffset),
+			formatAlignLeftRequest(groupID, groupNameColumnOffset),
+			formatAlignLeftRequest(groupID, groupZoomLinkColumnOffset),
+			formatAlignLeftRequest(userID, userNameColumnOffset),
+			formatAlignLeftRequest(userID, userEmailColumnOffset),
+			formatAlignLeftRequest(userID, userGroupColumnOffset),
+			autoSizeRequest(groupID, groupColumnBegin, groupColumnEnd, "COLUMNS"),
+			autoSizeRequest(groupID, 0, -1, "ROWS"),
+			autoSizeRequest(userID, userColumnBegin, userColumnEnd, "COLUMNS"),
+			autoSizeRequest(userID, 0, -1, "ROWS"),
 		},
 	}
 	_, err := syncClient.Spreadsheets.BatchUpdate(id, request).Do()
@@ -151,6 +265,11 @@ func DumpToSpreadsheet(c buffalo.Context, url string) error {
 	if err := exportGroups(c, id); err != nil {
 		return err
 	}
+	// format spreadsheet
+	if err := formatData(id, groups.Properties.SheetId, users.Properties.SheetId); err != nil {
+		return err
+	}
+
 	// slurp up some data
 	// groupRange := makeRange(groupsTitle, "A:E")
 	// userRange := makeRange(usersTitle, "A:E")

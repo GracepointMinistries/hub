@@ -20,7 +20,11 @@ type typeToCell struct {
 
 var (
 	allGroupRange      string
+	groupColumnBegin   int64
+	groupColumnEnd     int64
 	allUserRange       string
+	userColumnBegin    int64
+	userColumnEnd      int64
 	groupHeaders       []string
 	userHeaders        []string
 	groupHeadersLookup map[string]typeToCell
@@ -31,11 +35,13 @@ func init() {
 	group := reflect.TypeOf(groupSlice{}).Elem().Elem()
 	groupHeaders = make([]string, group.NumField())
 	groupHeadersLookup = make(map[string]typeToCell, group.NumField())
+	groupColumnBegin = 0
 	for i := 0; i < group.NumField(); i++ {
 		header := group.FieldByIndex([]int{i}).Name
+		groupColumnEnd = int64(i)
 		groupHeaders[i] = header
 		groupHeadersLookup[header] = typeToCell{
-			offset: int64(i),
+			offset: groupColumnEnd,
 			name:   string(rune('A') + rune(i)),
 		}
 	}
@@ -47,11 +53,13 @@ func init() {
 	user := reflect.TypeOf(userSlice{}).Elem().Elem()
 	userHeaders = make([]string, user.NumField())
 	userHeadersLookup = make(map[string]typeToCell, user.NumField())
+	userColumnBegin = 0
 	for i := 0; i < user.NumField(); i++ {
 		header := user.FieldByIndex([]int{i}).Name
+		userColumnEnd = int64(i)
 		userHeaders[i] = header
 		userHeadersLookup[header] = typeToCell{
-			offset: int64(i),
+			offset: userColumnEnd,
 			name:   string(rune('A') + rune(i)),
 		}
 	}
