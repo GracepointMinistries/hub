@@ -10,5 +10,4 @@ func Register(parent *cobra.Command) {
 	parent.AddCommand(groupCmd)
 	parent.AddCommand(userCmd)
 	parent.AddCommand(syncCmd)
-	parent.AddCommand(exportCmd)
 }

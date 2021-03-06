@@ -65,6 +65,6 @@ func Register(app *buffalo.App) {
 	adminAPI.GET("/groups/{id}", admin.Group)
 	adminAPI.GET("/settings", admin.CurrentSettings)
 	adminAPI.POST("/sync", sync.Initialize)
-	adminAPI.POST("/sync/dump", sync.Export)
+	adminAPI.POST("/sync/run", sync.Run)
 	adminAPI.GET("/impersonate/{id}", admin.Impersonate)
 }

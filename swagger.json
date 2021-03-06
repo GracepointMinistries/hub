@@ -183,13 +183,13 @@
         }
       }
     },
-    "/api/v1/admin/sync/dump": {
+    "/api/v1/admin/sync/run": {
       "post": {
         "tags": [
           "admin"
         ],
         "summary": "Returns a google sheet reference.",
-        "operationId": "dumpSync",
+        "operationId": "runSync",
         "responses": {
           "200": {
             "$ref": "#/responses/adminSyncSheetResponse"

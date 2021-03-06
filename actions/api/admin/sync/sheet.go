@@ -45,9 +45,9 @@ func Initialize(c buffalo.Context) error {
 	}))
 }
 
-// Export dumps the user and group state to the stored data sheet
+// Run synchronizes the user and group state to the stored data sheet
 //
-// swagger:route POST /api/v1/admin/sync/dump admin dumpSync
+// swagger:route POST /api/v1/admin/sync/run admin runSync
 // Returns a google sheet reference.
 // responses:
 //   200: adminSyncSheetResponse
@@ -56,7 +56,7 @@ func Initialize(c buffalo.Context) error {
 //	 403: errorResponse
 //	 422: errorResponse
 //	 500: errorResponse
-func Export(c buffalo.Context) error {
+func Run(c buffalo.Context) error {
 	sheet := settings.Sheet()
 	err := sync.ExportToSpreadsheet(c, sheet)
 	if err != nil {

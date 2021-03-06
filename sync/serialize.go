@@ -197,7 +197,7 @@ func unmarshal(v interface{}, values *sheets.ValueRange) error {
 	if len(data) <= int(headerStart)+1 { // we don't even have the header data
 		return errors.New("invalid spreadsheet data")
 	}
-	if err := unmarshalWithHeaders(v, data[headerStart], data[headerStart:]); err != nil {
+	if err := unmarshalWithHeaders(v, data[headerStart], data[headerStart+1:]); err != nil {
 		return err
 	}
 	return nil

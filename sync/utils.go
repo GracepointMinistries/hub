@@ -7,6 +7,27 @@ import (
 	sheets "google.golang.org/api/sheets/v4"
 )
 
+func stringOrEmpty(v *string) string {
+	if v == nil {
+		return ""
+	}
+	return *v
+}
+
+func isStringEmpty(v *string) bool {
+	if v == nil {
+		return true
+	}
+	return *v == ""
+}
+
+func boolOrFalse(v *bool) bool {
+	if v == nil {
+		return false
+	}
+	return *v
+}
+
 func urlToID(url string) string {
 	id := strings.TrimPrefix(url, urlPrefix)
 	id = strings.TrimSuffix(id, urlSuffix)

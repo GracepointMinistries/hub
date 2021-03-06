@@ -133,6 +133,9 @@ func ExportToSpreadsheet(c buffalo.Context, url string) error {
 func exportToSpreadsheet(c buffalo.Context, update bool, url string) error {
 	id := urlToID(url)
 	sheet, err := syncClient.Spreadsheets.Get(id).Do()
+	if err != nil {
+		return err
+	}
 	// validate the sheet metadata
 	if len(sheet.Sheets) < 2 {
 		return errors.New("missing required tabs on spreadsheet")
@@ -142,6 +145,32 @@ func exportToSpreadsheet(c buffalo.Context, update bool, url string) error {
 	if groups.Properties.Title != groupsTitle || users.Properties.Title != usersTitle {
 		return errors.New("unrecognized sheet name")
 	}
+
+	if update {
+		// slurp up data
+		batch, err := syncClient.Spreadsheets.Values.BatchGet(id).Ranges(allGroupRange, allUserRange).Do()
+		if err != nil {
+			return err
+		}
+		syncGroups := newGroupSlice()
+		syncUsers := newUserSlice()
+		if err := syncGroups.Unmarshal(batch.ValueRanges[0]); err != nil {
+			return err
+		}
+		if err := syncUsers.Unmarshal(batch.ValueRanges[1]); err != nil {
+			return err
+		}
+		// save the groups first since some users might reference the new ones
+		if err := syncGroups.Save(c); err != nil {
+			return err
+		}
+		if err := syncUsers.Save(c); err != nil {
+			return err
+		}
+	}
+
+	// sync it back to the sheet
+
 	// ensure sheet protection rules are set
 	if err := createProtectionRules(update, id, groups.Properties.SheetId, users.Properties.SheetId); err != nil {
 		return err
@@ -155,27 +184,7 @@ func exportToSpreadsheet(c buffalo.Context, update bool, url string) error {
 		return err
 	}
 	// format spreadsheet
-	if err := formatData(update, id, groups.Properties.SheetId, users.Properties.SheetId); err != nil {
-		return err
-	}
-	// slurp up some data
-	// groupRange := makeRange(groupsTitle, "A:E")
-	// userRange := makeRange(usersTitle, "A:E")
-	// batch, err := syncClient.Spreadsheets.Values.BatchGet(id).Ranges(groupRange, userRange).Do()
-	// if err != nil {
-	// 	return err
-	// }
-	// grps := newGroupSlice()
-	// usrs := newUserSlice()
-	// if err := grps.Unmarshal(batch.ValueRanges[0]); err != nil {
-	// 	return err
-	// }
-	// if err := usrs.Unmarshal(batch.ValueRanges[1]); err != nil {
-	// 	return err
-	// }
-	// fmt.Println(grps.String())
-	// fmt.Println(usrs.String())
-	return err
+	return formatData(update, id, groups.Properties.SheetId, users.Properties.SheetId)
 }
 
 // CreateSpreadsheet creates a new Google spreadsheet for synchronization

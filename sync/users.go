@@ -1,12 +1,15 @@
 package sync
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"reflect"
 
 	"github.com/GracepointMinistries/hub/modelext"
 	"github.com/GracepointMinistries/hub/models"
 	"github.com/gobuffalo/buffalo"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	sheets "google.golang.org/api/sheets/v4"
 )
@@ -90,7 +93,51 @@ func (u *userSlice) Marshal() *sheets.ValueRange {
 	}
 }
 
-func (u *userSlice) ToDB() []*models.User {
+func (u *userSlice) Save(c buffalo.Context) error {
+	// this is going to generate A LOT of queries
+	// up to 4 per user...
+	var err error
+	for _, user := range *u {
+		if user.ID != nil {
+			// we only ever want to update users who
+			// are already assigned ids
+			m := &models.User{
+				ID:      *user.ID,
+				Name:    stringOrEmpty(user.Name),
+				Email:   stringOrEmpty(user.Email),
+				Blocked: boolOrFalse(user.Blocked),
+			}
+			var found bool
+			if !isStringEmpty(user.Group) {
+				group, err := m.Groups(models.GroupWhere.Name.EQ(*user.Group)).One(c, modelext.GetTx(c))
+				if err != nil && !errors.Is(err, sql.ErrNoRows) {
+					return err
+				}
+				if group != nil {
+					found = true
+				}
+			}
+			var group *models.Group
+			if !isStringEmpty(user.Group) && !found {
+				group, err = models.Groups(models.GroupWhere.Name.EQ(*user.Group)).One(c, modelext.GetTx(c))
+				if err != nil {
+					if errors.Is(err, sql.ErrNoRows) {
+						return fmt.Errorf("invalid group specified: '%s'", *user.Group)
+					}
+					return err
+				}
+			}
+			if _, err := m.Update(c, modelext.GetTx(c), boil.Infer()); err != nil {
+				return err
+			}
+			if group != nil {
+				if err := m.AddGroups(c, modelext.GetTx(c), false, group); err != nil {
+					return err
+				}
+			}
+		}
+		// anything else we ignore
+	}
 	return nil
 }
 

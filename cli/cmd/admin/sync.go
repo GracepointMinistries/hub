@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/GracepointMinistries/hub/cli/clientext"
+	"github.com/GracepointMinistries/hub/cli/cmd/admin/sync"
 	"github.com/GracepointMinistries/hub/cli/print"
 	"github.com/GracepointMinistries/hub/cli/utils"
 	"github.com/manifoldco/promptui"
@@ -35,4 +36,8 @@ var syncCmd = &cobra.Command{
 		utils.CheckError(err)
 		fmt.Println(print.Noticef("Google Sheet created at: %s", payload.Sheet))
 	},
+}
+
+func init() {
+	sync.Register(syncCmd)
 }

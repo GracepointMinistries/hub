@@ -7,6 +7,7 @@ import (
 	"github.com/GracepointMinistries/hub/modelext"
 	"github.com/GracepointMinistries/hub/models"
 	"github.com/gobuffalo/buffalo"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	sheets "google.golang.org/api/sheets/v4"
 )
 
@@ -89,7 +90,37 @@ func (g *groupSlice) Marshal() *sheets.ValueRange {
 	}
 }
 
-func (g *groupSlice) ToDB() []*models.Group {
+func (g *groupSlice) Save(c buffalo.Context) error {
+	for _, group := range *g {
+		if group.ID != nil {
+			// we have an update
+			m := &models.Group{
+				ID:        *group.ID,
+				ZoomLink:  stringOrEmpty(group.ZoomLink),
+				Published: boolOrFalse(group.Published),
+				Archived:  boolOrFalse(group.Archived),
+			}
+			if !isStringEmpty(group.Name) {
+				// we don't want to remove group names
+				m.Name = *group.Name
+			}
+			if _, err := m.Update(c, modelext.GetTx(c), boil.Infer()); err != nil {
+				return err
+			}
+		} else if !isStringEmpty(group.Name) {
+			// nil ID + name == insert
+			m := &models.Group{
+				Name:      *group.Name,
+				ZoomLink:  stringOrEmpty(group.ZoomLink),
+				Published: boolOrFalse(group.Published),
+				Archived:  boolOrFalse(group.Archived),
+			}
+			if err := m.Insert(c, modelext.GetTx(c), boil.Infer()); err != nil {
+				return err
+			}
+		}
+		// anything else we ignore
+	}
 	return nil
 }
 

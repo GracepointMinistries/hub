@@ -1,4 +1,4 @@
-package admin
+package sync
 
 import (
 	"context"
@@ -10,13 +10,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var exportCmd = &cobra.Command{
-	Use:   "export",
-	Short: "Export user and group state to the stored Google sheet",
+var runCmd = &cobra.Command{
+	Use:   "run",
+	Short: "Run synchronizes user and group state to the stored Google sheet",
 	Run: func(cmd *cobra.Command, args []string) {
 		client := clientext.NewClient()
-		payload, _, err := client.AdminApi.DumpSync(context.Background())
+		payload, _, err := client.AdminApi.RunSync(context.Background())
 		utils.CheckError(err)
-		fmt.Println(print.Noticef("Data dumped to: %s", payload.Sheet))
+		fmt.Println(print.Noticef("Data synchronized to: %s", payload.Sheet))
 	},
 }
