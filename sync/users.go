@@ -45,8 +45,8 @@ type innerUser struct {
 	ID      *int    `json:"id"`
 	Email   *string `json:"email"`
 	Name    *string `json:"name"`
-	Blocked *bool   `json:"blocked"`
 	Group   *string `json:"group"`
+	Blocked *bool   `json:"blocked"`
 }
 
 type userSlice []*innerUser
