@@ -3,6 +3,7 @@ package middleware
 import (
 	"net/http"
 
+	"github.com/GracepointMinistries/hub/actions/utils"
 	"github.com/GracepointMinistries/hub/modelext"
 	"github.com/gobuffalo/buffalo"
 )
@@ -15,6 +16,13 @@ func RequireAdmin(next buffalo.Handler) buffalo.Handler {
 		}
 		admin := c.Session().Get("Admin").(string)
 		sessionID := c.Session().Get("SessionID").(int)
+		if !utils.IsAdmin(admin) {
+			// we have an old admin user, get rid of them
+			if err := modelext.DeleteAdminSession(c, sessionID); err != nil {
+				return c.Error(http.StatusInternalServerError, err)
+			}
+			return c.Redirect(http.StatusSeeOther, "/admin/auth/login")
+		}
 		valid, err := modelext.ValidateAdminSession(c, admin, sessionID)
 		if err != nil {
 			return c.Error(http.StatusInternalServerError, err)

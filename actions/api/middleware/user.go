@@ -21,6 +21,14 @@ func RequireAdmin(next buffalo.Handler) buffalo.Handler {
 		if err != nil {
 			return c.Error(http.StatusUnauthorized, err)
 		}
+		if !utils.IsAdmin(admin) {
+			// we have an old admin user, get rid of them
+			if err := modelext.DeleteAdminSession(c, sessionID); err != nil {
+				return c.Error(http.StatusInternalServerError, err)
+			}
+			return c.Error(http.StatusUnauthorized, errors.New("unauthorized"))
+		}
+
 		valid, err := modelext.ValidateAdminSession(c, admin, sessionID)
 		if err != nil {
 			return c.Error(http.StatusInternalServerError, err)
