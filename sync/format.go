@@ -2,15 +2,19 @@ package sync
 
 import sheets "google.golang.org/api/sheets/v4"
 
+func validationRange(id, end int64) *sheets.GridRange {
+	return &sheets.GridRange{
+		SheetId:        id,
+		EndColumnIndex: end + 1,
+		EndRowIndex:    headerStart,
+	}
+}
+
 func mergeValidationCell(id, end int64) *sheets.Request {
 	return &sheets.Request{
 		MergeCells: &sheets.MergeCellsRequest{
 			MergeType: "MERGE_ALL",
-			Range: &sheets.GridRange{
-				SheetId:        id,
-				EndColumnIndex: end + 1,
-				EndRowIndex:    headerStart,
-			},
+			Range:     validationRange(id, end),
 		},
 	}
 }
@@ -19,17 +23,14 @@ func formatValidationCell(id, end int64) *sheets.Request {
 	return &sheets.Request{
 		RepeatCell: &sheets.RepeatCellRequest{
 			Fields: "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)",
-			Range: &sheets.GridRange{
-				SheetId:        id,
-				EndColumnIndex: end + 1,
-				EndRowIndex:    headerStart,
-			},
+			Range:  validationRange(id, end),
 			Cell: &sheets.CellData{
 				UserEnteredFormat: &sheets.CellFormat{
 					BackgroundColor: &sheets.Color{
-						Red:   0.5,
-						Green: 0.5,
-						Blue:  0.5,
+						// Forest green
+						Red:   0.1643,
+						Green: 0.6715,
+						Blue:  0.1643,
 					},
 					HorizontalAlignment: "CENTER",
 					TextFormat: &sheets.TextFormat{
@@ -160,4 +161,72 @@ func formatLockedRequest(id int64, column typeToCell) *sheets.Request {
 			},
 		},
 	}
+}
+
+func updateConditionalErrorFormattingRequest(index, id, end int64) *sheets.Request {
+	return &sheets.Request{
+		UpdateConditionalFormatRule: &sheets.UpdateConditionalFormatRuleRequest{
+			Index: index,
+			Rule: &sheets.ConditionalFormatRule{
+				BooleanRule: &sheets.BooleanRule{
+					Condition: &sheets.BooleanCondition{
+						Type: "TEXT_EQ",
+						Values: []*sheets.ConditionValue{
+							&sheets.ConditionValue{
+								UserEnteredValue: "INVALID",
+							},
+						},
+					},
+					Format: &sheets.CellFormat{
+						BackgroundColor: &sheets.Color{
+							Red:   1.0,
+							Green: 0.39,
+							Blue:  0.28,
+						},
+					},
+				},
+				Ranges: []*sheets.GridRange{
+					validationRange(id, end),
+				},
+			},
+		},
+	}
+}
+
+func addConditionalErrorFormattingRequest(index, id, end int64) *sheets.Request {
+	return &sheets.Request{
+		AddConditionalFormatRule: &sheets.AddConditionalFormatRuleRequest{
+			Index: index,
+			Rule: &sheets.ConditionalFormatRule{
+				BooleanRule: &sheets.BooleanRule{
+					Condition: &sheets.BooleanCondition{
+						Type: "TEXT_EQ",
+						Values: []*sheets.ConditionValue{
+							&sheets.ConditionValue{
+								UserEnteredValue: "INVALID",
+							},
+						},
+					},
+					Format: &sheets.CellFormat{
+						BackgroundColor: &sheets.Color{
+							// Indian red
+							Red:   1.0,
+							Green: 0.39,
+							Blue:  0.28,
+						},
+					},
+				},
+				Ranges: []*sheets.GridRange{
+					validationRange(id, end),
+				},
+			},
+		},
+	}
+}
+
+func conditionalErrorFormattingRequest(update bool, index, id, end int64) *sheets.Request {
+	if update {
+		return updateConditionalErrorFormattingRequest(index, id, end)
+	}
+	return addConditionalErrorFormattingRequest(index, id, end)
 }

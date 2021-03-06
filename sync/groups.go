@@ -1,6 +1,7 @@
 package sync
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/GracepointMinistries/hub/modelext"
@@ -37,6 +38,13 @@ func init() {
 	allGroupRange = makeRange(groupsTitle, groupRangeBegin+":"+groupRangeEnd)
 }
 
+// generate these dynamically at some point
+const (
+	uniqueGroupNameValidation = "EQ(COUNTA('Groups - DO NOT RENAME'!$B$3:$B)-COUNTA(UNIQUE('Groups - DO NOT RENAME'!$B$3:$B)), 0)"
+)
+
+var groupSheetValidationRule = fmt.Sprintf("=IF(%s, \"VALID\", \"INVALID\")", uniqueGroupNameValidation)
+
 type innerGroup struct {
 	// order matters here, it needs to be the same as
 	// the expected header ordering
@@ -64,7 +72,7 @@ func (g *groupSlice) Marshal() *sheets.ValueRange {
 		value := []interface{}{}
 		for j := 0; j < len(groupHeaders); j++ {
 			if i == 0 && j == 0 {
-				value = append(value, "VALID")
+				value = append(value, groupSheetValidationRule)
 			} else {
 				value = append(value, "")
 			}

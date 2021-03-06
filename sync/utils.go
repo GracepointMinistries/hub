@@ -27,6 +27,14 @@ func gridRangeForData(id int64, col typeToCell) *sheets.GridRange {
 	}
 }
 
+func gridRangeDataWithHeader(id, end int64) *sheets.GridRange {
+	return &sheets.GridRange{
+		SheetId:        id,
+		EndColumnIndex: end + 1,
+		StartRowIndex:  headerStart,
+	}
+}
+
 func gridRangeFor(id int64, col typeToCell) *sheets.GridRange {
 	return &sheets.GridRange{
 		SheetId:          id,

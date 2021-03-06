@@ -12,8 +12,8 @@ const (
 	urlPrefix = "https://docs.google.com/spreadsheets/d/"
 	urlSuffix = "/edit"
 
-	groupsTitle = "Groups - DO NOT RENAME"
-	usersTitle  = "Users - DO NOT RENAME"
+	groupsTitle = "Groups"
+	usersTitle  = "Users"
 )
 
 func createProtectionRules(update bool, id string, groupID, userID int64) error {
@@ -75,6 +75,8 @@ func formatData(update bool, id string, groupID, userID int64) error {
 		Requests: []*sheets.Request{
 			formatValidationCell(groupID, groupColumnEnd),
 			formatValidationCell(userID, userColumnEnd),
+			conditionalErrorFormattingRequest(update, 0, groupID, groupColumnEnd),
+			conditionalErrorFormattingRequest(update, 0, userID, userColumnEnd),
 			mergeValidationCell(groupID, groupColumnEnd),
 			mergeValidationCell(userID, userColumnEnd),
 			headerFormattingRequest(groupID, groupColumnBegin, groupColumnEnd),
@@ -113,8 +115,6 @@ func exportGroups(c buffalo.Context, id string) error {
 		return err
 	}
 
-	// b, _ := json.MarshalIndent(groups.Marshal(), "", "  ")
-	// fmt.Println(string(b))
 	_, err = syncClient.Spreadsheets.Values.BatchUpdate(id, &sheets.BatchUpdateValuesRequest{
 		Data: []*sheets.ValueRange{
 			groups.Marshal(),
@@ -158,7 +158,6 @@ func exportToSpreadsheet(c buffalo.Context, update bool, url string) error {
 	if err := formatData(update, id, groups.Properties.SheetId, users.Properties.SheetId); err != nil {
 		return err
 	}
-
 	// slurp up some data
 	// groupRange := makeRange(groupsTitle, "A:E")
 	// userRange := makeRange(usersTitle, "A:E")

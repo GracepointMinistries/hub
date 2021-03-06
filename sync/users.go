@@ -1,6 +1,7 @@
 package sync
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/GracepointMinistries/hub/modelext"
@@ -58,6 +59,13 @@ func (u *userSlice) Unmarshal(values *sheets.ValueRange) error {
 	return unmarshal(u, values)
 }
 
+// generate these dynamically at some point
+const (
+	usersGroupNameValidation = "EQ(SUM(ARRAYFORMULA(COUNTIF('Groups'!$B$3:$B, 'Users'!$E$3:$E)))-COUNTA('Users'!$E$3:$E), 0)"
+)
+
+var userSheetValidationRule = fmt.Sprintf("=IF(%s, \"VALID\", \"INVALID\")", usersGroupNameValidation)
+
 func (u *userSlice) Marshal() *sheets.ValueRange {
 	dataStart := int(headerStart) + 1
 	values := make([][]interface{}, len(*u)+dataStart) // to skip past the haders
@@ -65,7 +73,7 @@ func (u *userSlice) Marshal() *sheets.ValueRange {
 		value := []interface{}{}
 		for j := 0; j < len(groupHeaders); j++ {
 			if i == 0 && j == 0 {
-				value = append(value, "VALID")
+				value = append(value, userSheetValidationRule)
 			} else {
 				value = append(value, "")
 			}
