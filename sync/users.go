@@ -61,7 +61,7 @@ func (u *userSlice) Unmarshal(values *sheets.ValueRange) error {
 
 // generate these dynamically at some point
 const (
-	usersGroupNameValidation = "EQ(SUM(ARRAYFORMULA(COUNTIF('Groups'!$B$3:$B, 'Users'!$E$3:$E)))-COUNTA('Users'!$E$3:$E), 0)"
+	usersGroupNameValidation = "EQ(SUM(ARRAYFORMULA(COUNTIF('Groups'!$B$3:$B, 'Users'!$D$3:$D)))-COUNTA('Users'!$D$3:$D), 0)"
 )
 
 var userSheetValidationRule = fmt.Sprintf("=IF(%s, \"VALID\", \"INVALID\")", usersGroupNameValidation)
