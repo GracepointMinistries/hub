@@ -427,7 +427,7 @@ func testSettingsSelect(t *testing.T) {
 }
 
 var (
-	settingDBTypes = map[string]string{`ID`: `integer`, `Sheet`: `character varying`, `Script`: `character varying`, `UpdatedAt`: `timestamp with time zone`}
+	settingDBTypes = map[string]string{`ID`: `integer`, `Sheet`: `character varying`, `Script`: `character varying`, `SyncOnce`: `character varying`, `UpdatedAt`: `timestamp with time zone`}
 	_              = bytes.MinRead
 )
 

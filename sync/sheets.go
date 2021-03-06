@@ -126,11 +126,11 @@ func exportGroups(c buffalo.Context, id string) error {
 }
 
 // ExportToSpreadsheet exports the group and user space to the given spreadsheet
-func ExportToSpreadsheet(c buffalo.Context, url, scriptURL string) error {
-	return exportToSpreadsheet(c, true, url, scriptURL)
+func ExportToSpreadsheet(c buffalo.Context, url, scriptURL, slug string) error {
+	return exportToSpreadsheet(c, true, url, scriptURL, slug)
 }
 
-func exportToSpreadsheet(c buffalo.Context, update bool, url, scriptURL string) error {
+func exportToSpreadsheet(c buffalo.Context, update bool, url, scriptURL, slug string) error {
 	id := urlToID(url)
 	scriptID := scriptURLToID(scriptURL)
 
@@ -192,11 +192,11 @@ func exportToSpreadsheet(c buffalo.Context, update bool, url, scriptURL string) 
 	}
 
 	// update app script
-	return updateScriptProject(scriptID, "")
+	return updateScriptProject(scriptID, slug)
 }
 
 // CreateSpreadsheet creates a new Google spreadsheet for synchronization
-func CreateSpreadsheet(c buffalo.Context) (string, string, error) {
+func CreateSpreadsheet(c buffalo.Context, slug string) (string, string, error) {
 	sheet, err := syncClient.Spreadsheets.Create(&sheets.Spreadsheet{
 		Properties: &sheets.SpreadsheetProperties{
 			Title: "Hub Synchronized Groupings",
@@ -229,5 +229,5 @@ func CreateSpreadsheet(c buffalo.Context) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	return sheet.SpreadsheetUrl, scriptURL, exportToSpreadsheet(c, false, sheet.SpreadsheetUrl, scriptURL)
+	return sheet.SpreadsheetUrl, scriptURL, exportToSpreadsheet(c, false, sheet.SpreadsheetUrl, scriptURL, slug)
 }

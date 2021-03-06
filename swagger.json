@@ -183,6 +183,44 @@
         }
       }
     },
+    "/api/v1/admin/sync/once/{id}": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Returns a google sheet reference.",
+        "operationId": "runSyncOnce",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/adminSyncOnceResponse"
+          },
+          "400": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "401": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "403": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "422": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/errorResponse"
+          }
+        }
+      }
+    },
     "/api/v1/admin/sync/run": {
       "post": {
         "tags": [
@@ -582,6 +620,9 @@
           "type": "string"
         },
         "sheet": {
+          "type": "string"
+        },
+        "syncOnce": {
           "type": "string"
         },
         "updatedAt": {

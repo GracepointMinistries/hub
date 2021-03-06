@@ -27,6 +27,7 @@ type wrappedSettings struct {
 	mutex sync.RWMutex
 }
 
+var host string
 var globalSettings = &wrappedSettings{}
 
 func (s *wrappedSettings) MarshalJSON() ([]byte, error) {
@@ -98,12 +99,32 @@ func Script() string {
 	return globalSettings.Script
 }
 
-// HasSheet returns whether the current sheet settings are set
-func HasSheet() bool {
+// RegenerateOneTimeSyncSlug updates the sync_once global settings
+func RegenerateOneTimeSyncSlug(c buffalo.Context) (string, error) {
+	once := randString(32)
+	globalSettings.mutex.Lock()
+	defer globalSettings.mutex.Unlock()
+
+	globalSettings.SyncOnce = once
+	return once, syncSettings(c)
+}
+
+// OneTimeSyncSlug returns the current sync_once settings
+func OneTimeSyncSlug() string {
 	globalSettings.mutex.RLock()
 	defer globalSettings.mutex.RUnlock()
 
-	return globalSettings.Sheet != ""
+	return globalSettings.SyncOnce
+}
+
+// SetHost stores the host application
+func SetHost(url string) {
+	host = url
+}
+
+// Host returns the host of the application
+func Host() string {
+	return host
 }
 
 // Initialize should only be called at the start of the program

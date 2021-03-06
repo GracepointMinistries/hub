@@ -3,6 +3,7 @@ CREATE TABLE settings (
   id integer PRIMARY KEY,
   sheet varchar NOT NULL DEFAULT '',
   script varchar NOT NULL DEFAULT '',
+  sync_once varchar NOT NULL DEFAULT '',
   updated_at timestamptz NOT NULL DEFAULT NOW()
 );
 

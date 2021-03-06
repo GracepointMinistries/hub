@@ -26,6 +26,7 @@ type Setting struct {
 	ID        int       `boil:"id" json:"id" toml:"id" yaml:"id"`
 	Sheet     string    `boil:"sheet" json:"sheet" toml:"sheet" yaml:"sheet"`
 	Script    string    `boil:"script" json:"script" toml:"script" yaml:"script"`
+	SyncOnce  string    `boil:"sync_once" json:"syncOnce" toml:"syncOnce" yaml:"syncOnce"`
 	UpdatedAt time.Time `boil:"updated_at" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
 
 	R *settingR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -36,11 +37,13 @@ var SettingColumns = struct {
 	ID        string
 	Sheet     string
 	Script    string
+	SyncOnce  string
 	UpdatedAt string
 }{
 	ID:        "id",
 	Sheet:     "sheet",
 	Script:    "script",
+	SyncOnce:  "sync_once",
 	UpdatedAt: "updated_at",
 }
 
@@ -50,11 +53,13 @@ var SettingWhere = struct {
 	ID        whereHelperint
 	Sheet     whereHelperstring
 	Script    whereHelperstring
+	SyncOnce  whereHelperstring
 	UpdatedAt whereHelpertime_Time
 }{
 	ID:        whereHelperint{field: "\"settings\".\"id\""},
 	Sheet:     whereHelperstring{field: "\"settings\".\"sheet\""},
 	Script:    whereHelperstring{field: "\"settings\".\"script\""},
+	SyncOnce:  whereHelperstring{field: "\"settings\".\"sync_once\""},
 	UpdatedAt: whereHelpertime_Time{field: "\"settings\".\"updated_at\""},
 }
 
@@ -75,9 +80,9 @@ func (*settingR) NewStruct() *settingR {
 type settingL struct{}
 
 var (
-	settingAllColumns            = []string{"id", "sheet", "script", "updated_at"}
+	settingAllColumns            = []string{"id", "sheet", "script", "sync_once", "updated_at"}
 	settingColumnsWithoutDefault = []string{"id"}
-	settingColumnsWithDefault    = []string{"sheet", "script", "updated_at"}
+	settingColumnsWithDefault    = []string{"sheet", "script", "sync_once", "updated_at"}
 	settingPrimaryKeyColumns     = []string{"id"}
 )
 

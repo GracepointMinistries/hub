@@ -54,6 +54,7 @@ func App() *buffalo.App {
 			PreWares:    []buffalo.PreWare{cors.Default().Handler},
 		}))
 		host := envy.Get("HOST", app.Host)
+		settings.SetHost(host)
 		gothic.Store = app.SessionStore
 		adminProvider := google.New(os.Getenv("GOOGLE_OAUTH_KEY"), os.Getenv("GOOGLE_OAUTH_SECRET"), fmt.Sprintf(host+"/admin/auth/callback"))
 		adminProvider.SetName("admin")

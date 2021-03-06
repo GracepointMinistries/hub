@@ -1,6 +1,8 @@
 package sync
 
 import (
+	"fmt"
+
 	script "google.golang.org/api/script/v1"
 )
 
@@ -8,22 +10,30 @@ const (
 	scriptURLPrefix = "https://script.google.com/d/"
 
 	scriptSource = `
-function helloWorld() {
-	console.log('Hello, world!');
+function sync() {
+	UrlFetchApp.fetch("%s");
+}
+
+function onOpen(e) {
+  SpreadsheetApp.getUi()
+      .createMenu('Hub')
+      .addItem('Sync', 'sync')
+      .addToUi();
 }
 `
 	scriptManifestSource = `{
   "timeZone": "America/New_York",
-	"exceptionLogging": "NONE"
+	"exceptionLogging": "NONE",
+	"urlFetchWhitelist": ["%s"]
 }`
 )
 
 func getScriptSource(url string) string {
-	return scriptSource
+	return fmt.Sprintf(scriptSource, url)
 }
 
 func getScriptManifestSource(url string) string {
-	return scriptManifestSource
+	return fmt.Sprintf(scriptManifestSource, url)
 }
 
 func createScriptProject(parent string) (string, error) {
