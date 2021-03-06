@@ -25,6 +25,7 @@ import (
 type Setting struct {
 	ID        int       `boil:"id" json:"id" toml:"id" yaml:"id"`
 	Sheet     string    `boil:"sheet" json:"sheet" toml:"sheet" yaml:"sheet"`
+	Script    string    `boil:"script" json:"script" toml:"script" yaml:"script"`
 	UpdatedAt time.Time `boil:"updated_at" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
 
 	R *settingR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -34,10 +35,12 @@ type Setting struct {
 var SettingColumns = struct {
 	ID        string
 	Sheet     string
+	Script    string
 	UpdatedAt string
 }{
 	ID:        "id",
 	Sheet:     "sheet",
+	Script:    "script",
 	UpdatedAt: "updated_at",
 }
 
@@ -46,10 +49,12 @@ var SettingColumns = struct {
 var SettingWhere = struct {
 	ID        whereHelperint
 	Sheet     whereHelperstring
+	Script    whereHelperstring
 	UpdatedAt whereHelpertime_Time
 }{
 	ID:        whereHelperint{field: "\"settings\".\"id\""},
 	Sheet:     whereHelperstring{field: "\"settings\".\"sheet\""},
+	Script:    whereHelperstring{field: "\"settings\".\"script\""},
 	UpdatedAt: whereHelpertime_Time{field: "\"settings\".\"updated_at\""},
 }
 
@@ -70,9 +75,9 @@ func (*settingR) NewStruct() *settingR {
 type settingL struct{}
 
 var (
-	settingAllColumns            = []string{"id", "sheet", "updated_at"}
+	settingAllColumns            = []string{"id", "sheet", "script", "updated_at"}
 	settingColumnsWithoutDefault = []string{"id"}
-	settingColumnsWithDefault    = []string{"sheet", "updated_at"}
+	settingColumnsWithDefault    = []string{"sheet", "script", "updated_at"}
 	settingPrimaryKeyColumns     = []string{"id"}
 )
 

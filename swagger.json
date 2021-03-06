@@ -578,6 +578,9 @@
           "type": "integer",
           "format": "int64"
         },
+        "script": {
+          "type": "string"
+        },
         "sheet": {
           "type": "string"
         },

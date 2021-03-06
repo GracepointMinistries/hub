@@ -10,6 +10,7 @@ import (
 
 type Setting struct {
 	Id int64 `json:"id,omitempty"`
+	Script string `json:"script,omitempty"`
 	Sheet string `json:"sheet,omitempty"`
 	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 }

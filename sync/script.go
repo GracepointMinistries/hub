@@ -4,14 +4,26 @@ import (
 	script "google.golang.org/api/script/v1"
 )
 
-const scriptSource = `
+const (
+	scriptURLPrefix = "https://script.google.com/d/"
+
+	scriptSource = `
 function helloWorld() {
 	console.log('Hello, world!');
 }
 `
+	scriptManifestSource = `{
+  "timeZone": "America/New_York",
+	"exceptionLogging": "NONE"
+}`
+)
 
 func getScriptSource(url string) string {
 	return scriptSource
+}
+
+func getScriptManifestSource(url string) string {
+	return scriptManifestSource
 }
 
 func createScriptProject(parent string) (string, error) {
@@ -22,7 +34,8 @@ func createScriptProject(parent string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return response.ScriptId, nil
+	url := scriptURLPrefix + response.ScriptId + urlSuffix
+	return url, nil
 }
 
 func updateScriptProject(id, url string) error {
@@ -32,6 +45,10 @@ func updateScriptProject(id, url string) error {
 			Name:   "script",
 			Type:   "SERVER_JS",
 			Source: getScriptSource(url),
+		}, {
+			Name:   "appsscript",
+			Type:   "JSON",
+			Source: getScriptManifestSource(url),
 		}},
 	}).Do()
 	return err

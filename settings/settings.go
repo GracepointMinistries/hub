@@ -81,6 +81,23 @@ func Sheet() string {
 	return globalSettings.Sheet
 }
 
+// UpdateScript updates the script global settings
+func UpdateScript(c buffalo.Context, script string) error {
+	globalSettings.mutex.Lock()
+	defer globalSettings.mutex.Unlock()
+
+	globalSettings.Script = script
+	return syncSettings(c)
+}
+
+// Script returns the current script settings
+func Script() string {
+	globalSettings.mutex.RLock()
+	defer globalSettings.mutex.RUnlock()
+
+	return globalSettings.Script
+}
+
 // HasSheet returns whether the current sheet settings are set
 func HasSheet() bool {
 	globalSettings.mutex.RLock()

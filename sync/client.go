@@ -24,17 +24,23 @@ func SetupClient() error {
 	if err != nil {
 		return err
 	}
-	syncEmail = email
+	subject, err := envy.MustGet("GOOGLE_CLIENT_SUBJECT")
+	if err != nil {
+		return err
+	}
+	syncEmail = subject
 	privateKey, err := envy.MustGet("GOOGLE_CLIENT_PRIVATE_KEY")
 	if err != nil {
 		return err
 	}
 	config := &jwt.Config{
 		Email:      email,
+		Subject:    subject,
 		PrivateKey: []byte(privateKey),
 		Scopes: []string{
 			"https://www.googleapis.com/auth/spreadsheets",
 			"https://www.googleapis.com/auth/drive",
+			"https://www.googleapis.com/auth/script.projects",
 		},
 		TokenURL: googleOAuth.JWTTokenURL,
 	}

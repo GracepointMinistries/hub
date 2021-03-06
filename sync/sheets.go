@@ -126,16 +126,19 @@ func exportGroups(c buffalo.Context, id string) error {
 }
 
 // ExportToSpreadsheet exports the group and user space to the given spreadsheet
-func ExportToSpreadsheet(c buffalo.Context, url string) error {
-	return exportToSpreadsheet(c, true, url)
+func ExportToSpreadsheet(c buffalo.Context, url, scriptURL string) error {
+	return exportToSpreadsheet(c, true, url, scriptURL)
 }
 
-func exportToSpreadsheet(c buffalo.Context, update bool, url string) error {
+func exportToSpreadsheet(c buffalo.Context, update bool, url, scriptURL string) error {
 	id := urlToID(url)
+	scriptID := scriptURLToID(scriptURL)
+
 	sheet, err := syncClient.Spreadsheets.Get(id).Do()
 	if err != nil {
 		return err
 	}
+
 	// validate the sheet metadata
 	if len(sheet.Sheets) < 2 {
 		return errors.New("missing required tabs on spreadsheet")
@@ -184,11 +187,16 @@ func exportToSpreadsheet(c buffalo.Context, update bool, url string) error {
 		return err
 	}
 	// format spreadsheet
-	return formatData(update, id, groups.Properties.SheetId, users.Properties.SheetId)
+	if err := formatData(update, id, groups.Properties.SheetId, users.Properties.SheetId); err != nil {
+		return err
+	}
+
+	// update app script
+	return updateScriptProject(scriptID, "")
 }
 
 // CreateSpreadsheet creates a new Google spreadsheet for synchronization
-func CreateSpreadsheet(c buffalo.Context) (string, error) {
+func CreateSpreadsheet(c buffalo.Context) (string, string, error) {
 	sheet, err := syncClient.Spreadsheets.Create(&sheets.Spreadsheet{
 		Properties: &sheets.SpreadsheetProperties{
 			Title: "Hub Synchronized Groupings",
@@ -207,7 +215,11 @@ func CreateSpreadsheet(c buffalo.Context) (string, error) {
 		},
 	}).Do()
 	if err != nil {
-		return "", err
+		return "", "", err
+	}
+	scriptURL, err := createScriptProject(sheet.SpreadsheetId)
+	if err != nil {
+		return "", "", err
 	}
 	_, err = driveClient.Permissions.Create(sheet.SpreadsheetId, &drive.Permission{
 		EmailAddress: "andrew.stucki@gmail.com",
@@ -215,7 +227,7 @@ func CreateSpreadsheet(c buffalo.Context) (string, error) {
 		Type:         "user",
 	}).SendNotificationEmail(false).Do()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	return sheet.SpreadsheetUrl, exportToSpreadsheet(c, false, sheet.SpreadsheetUrl)
+	return sheet.SpreadsheetUrl, scriptURL, exportToSpreadsheet(c, false, sheet.SpreadsheetUrl, scriptURL)
 }

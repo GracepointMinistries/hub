@@ -30,7 +30,13 @@ func boolOrFalse(v *bool) bool {
 
 func urlToID(url string) string {
 	id := strings.TrimPrefix(url, urlPrefix)
-	id = strings.TrimSuffix(id, urlSuffix)
+	id = strings.Split(id, urlSuffix)[0]
+	return id
+}
+
+func scriptURLToID(url string) string {
+	id := strings.TrimPrefix(url, scriptURLPrefix)
+	id = strings.Split(id, urlSuffix)[0]
 	return id
 }
 

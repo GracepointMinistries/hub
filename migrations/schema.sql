@@ -224,6 +224,7 @@ ALTER SEQUENCE public.sessions_id_seq OWNED BY public.sessions.id;
 CREATE TABLE public.settings (
     id integer NOT NULL,
     sheet character varying DEFAULT ''::character varying NOT NULL,
+    script character varying DEFAULT ''::character varying NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 

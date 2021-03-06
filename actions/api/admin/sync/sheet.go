@@ -33,8 +33,11 @@ type SheetResponsePayload struct {
 //	 422: errorResponse
 //	 500: errorResponse
 func Initialize(c buffalo.Context) error {
-	sheet, err := sync.CreateSpreadsheet(c)
+	sheet, script, err := sync.CreateSpreadsheet(c)
 	if err != nil {
+		return c.Error(http.StatusInternalServerError, err)
+	}
+	if err := settings.UpdateScript(c, script); err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}
 	if err := settings.UpdateSheet(c, sheet); err != nil {
@@ -58,7 +61,8 @@ func Initialize(c buffalo.Context) error {
 //	 500: errorResponse
 func Run(c buffalo.Context) error {
 	sheet := settings.Sheet()
-	err := sync.ExportToSpreadsheet(c, sheet)
+	script := settings.Script()
+	err := sync.ExportToSpreadsheet(c, sheet, script)
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}
