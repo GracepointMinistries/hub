@@ -7,13 +7,15 @@ import (
 	googleOAuth "golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
 	drive "google.golang.org/api/drive/v3"
+	script "google.golang.org/api/script/v1"
 	sheets "google.golang.org/api/sheets/v4"
 )
 
 var (
-	syncEmail   string
-	syncClient  *sheets.Service
-	driveClient *drive.Service
+	syncEmail    string
+	syncClient   *sheets.Service
+	driveClient  *drive.Service
+	scriptClient *script.Service
 )
 
 // SetupClient sets up the global sheets client
@@ -41,5 +43,9 @@ func SetupClient() error {
 		return err
 	}
 	driveClient, err = drive.New(config.Client(context.Background()))
+	if err != nil {
+		return err
+	}
+	scriptClient, err = script.New(config.Client(context.Background()))
 	return err
 }
