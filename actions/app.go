@@ -78,7 +78,7 @@ func App() *buffalo.App {
 			pages := app.Group("")
 			pages.Use(csrf.New)
 
-			mainPages := app.Group("")
+			mainPages := pages.Group("")
 			mainPages.Use(middleware.RequireLoggedInUser)
 			mainPages.GET("/", Profile)
 
