@@ -192,7 +192,9 @@ func exportToSpreadsheet(c buffalo.Context, update bool, url, scriptURL, slug st
 	}
 
 	// update app script
-	return updateScriptProject(scriptID, slug)
+	nameRange := dataRangeA1(groupsTitle, groupHeadersLookup["Name"])
+	groupRange := dataRangeA1(usersTitle, userHeadersLookup["Group"])
+	return updateScriptProject(scriptID, slug, groups.Properties.SheetId, groupHeadersLookup["Name"].offset, nameRange, groupRange)
 }
 
 // CreateSpreadsheet creates a new Google spreadsheet for synchronization

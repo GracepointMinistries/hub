@@ -70,7 +70,7 @@ func Run(c buffalo.Context) error {
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}
-	err = sync.ExportToSpreadsheet(c, sheet, script, slug)
+	err = sync.ExportToSpreadsheet(c, sheet, script, urlForOnce(slug))
 	if err != nil {
 		return c.Error(http.StatusInternalServerError, err)
 	}

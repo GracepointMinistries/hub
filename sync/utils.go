@@ -44,6 +44,12 @@ func makeRange(tab, dataRange string) string {
 	return fmt.Sprintf("'%s'!%s", tab, dataRange)
 }
 
+func dataRangeA1(tab string, col typeToCell) string {
+	name := col.name
+	dataRange := fmt.Sprintf("%s%d:%s", name, headerStart+1, name)
+	return makeRange(tab, dataRange)
+}
+
 func gridRangeForData(id int64, col typeToCell) *sheets.GridRange {
 	return &sheets.GridRange{
 		SheetId:          id,
