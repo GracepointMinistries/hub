@@ -40,7 +40,7 @@ func init() {
 
 // generate these dynamically at some point
 const (
-	uniqueGroupNameValidation = "EQ(COUNTA('Groups - DO NOT RENAME'!$B$3:$B)-COUNTA(UNIQUE('Groups - DO NOT RENAME'!$B$3:$B)), 0)"
+	uniqueGroupNameValidation = "EQ(COUNTA('Groups'!$B$3:$B)-COUNTA(UNIQUE('Groups'!$B$3:$B)), 0)"
 )
 
 var groupSheetValidationRule = fmt.Sprintf("=IF(%s, \"VALID\", \"INVALID\")", uniqueGroupNameValidation)
